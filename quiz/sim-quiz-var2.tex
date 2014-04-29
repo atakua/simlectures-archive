@@ -1,0 +1,345 @@
+% Compile with XeLaTeX only
+%
+% \documentclass[a4paper, addpoints, answers]{exam}
+\documentclass[a4paper, addpoints]{exam}
+
+\pointpoints{б.}{б.}
+\bonuspointpoints{б.}{б.}
+
+\def \variant {2}
+
+\usepackage{fontspec}
+%\usepackage[utf8]{inputenc} % uncomment for latex2rtf 
+
+\usepackage{xunicode} % some extra unicode support
+\usepackage{xltxtra}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+\usepackage{csquotes}
+
+\usepackage{polyglossia}
+\defaultfontfeatures{Scale=MatchLowercase, Mapping=tex-text}
+
+\newfontfamily\russianfont{CMU Serif}
+\setromanfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+
+\setdefaultlanguage[spelling=modern]{russian}
+\setotherlanguage{english}
+\newcommand{\todo}{{\color{red}TODO}\ }
+\usepackage{graphicx}
+
+\tolerance=9999 % let the text underfull be ugly as hell, nobody cares.
+\emergencystretch=3cm
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=black, filecolor=black, citecolor=black, urlcolor=black , pdfauthor=Grigory Rechistov, pdftitle=Контрольная по курсу <<Основы программного моделирования ЭВМ>>}
+
+\usepackage{footnpag}
+\usepackage{indentfirst}
+\usepackage{underscore}
+\usepackage{url}
+
+\usepackage{listings}
+\lstset{basicstyle=\footnotesize\ttfamily, breaklines=true, keepspaces=true}
+
+\usepackage{nameref}
+\usepackage{amsthm}
+\usepackage{enumitem} % continue enumeration 
+\usepackage{subfigure}
+\usepackage{mdwlist} % compact itemize lists environment
+
+\setcounter{tocdepth}{2}
+
+\renewcommand{\solutiontitle}{\noindent\textbf{Ответ:}\enspace}
+
+\title{Основы программного моделирования ЭВМ. Контрольная работа. Вариант \textnumero \variant}
+\author{}
+\newcommand{\testdate}{\today}
+\date{\testdate}
+
+\typeout{Copyright 2012 Grigory Rechistov and the contributors.}
+\begin{document}
+
+\pagestyle{headandfoot}
+\runningheadrule
+\firstpageheader{Вариант \textnumero \variant}{Кафедра <<Микропроцессорные технологии>>}{\testdate}
+\runningheader{Вариант \textnumero \variant}{Кафедра <<Микропроцессорные технологии>>}{\testdate}
+\coverfooter{}{Стр. \thepage\ из \numpages}{}
+\firstpagefooter{}{Стр. \thepage\ из \numpages}{}
+\runningfooter{}{Стр. \thepage\ из \numpages}{}
+
+\maketitle\thispagestyle{headandfoot} % a hack to have proper footers and headers on the first page as well
+
+\medskip
+\makebox[0.9\textwidth]{Ф.И.О.\enspace\hrulefill}
+\medskip
+
+\makebox[0.9\textwidth]{Группа\enspace\hrulefill}
+\medskip
+
+\makebox[0.9\textwidth]{e-mail\enspace\hrulefill}
+
+% Grade tables
+\hqword{Вопрос}
+\hpword{Баллов}
+\hsword{Результат}
+\htword{Сумма}
+\vqword{Вопрос}
+\vpword{Баллов}
+\vsword{Результат}
+\vtword{Сумма}
+\cellwidth{0.5em}
+\gradetablestretch{1.8}
+\begin{center}
+\tiny
+% \gradetable[h][questions]
+\partialgradetable{multiplechoice}[h][questions]\\
+\partialgradetable{fullquestions}[h][questions]\\
+\partialgradetable{bonuswork}[h][questions]\\
+\end{center}
+
+\medskip
+
+% \begin{center}
+% \fbox{\fbox{\parbox{\textwidth}{\centering
+% В заданиях выделите правильные варианты ответов или дайте развёрнутый ответ.
+% }}}
+% \end{center}
+
+\begin{questions}
+
+
+\begingradingrange{multiplechoice} 
+
+\question[1] Какие из указанных ниже компонентов обязательны для реализации интерпретатора?
+\begin{choices}
+    \correctchoice декодер
+    \choice дизассемблер
+    \choice енкодер
+    \correctchoice блоки реализации семантики отдельных инструкций
+    \choice кэш декодированных инструкций
+\end{choices}
+
+\question[1] Выберите правильный вариант окончания фразы: в моделях DES новые события могут быть добавлены
+\begin{choices}
+    \choice только к голове очереди событий
+    \choice только к хвосту очереди событий
+    \correctchoice в любую позицию в очереди событий
+\end{choices}
+
+%\question[1] Выберите все необходимые условия корректности применения гиперсимуляции процессора.
+%\begin{choices}
+%    \correctchoice Нет обращений к внешней памяти
+%    \choice  Нет обращений к внешним устройствам
+%    \choice Только один процессор в системе
+%    \correctchoice Состояние внешних устройств не меняется
+%    \choice состояние процессора не меняется
+%\end{choices}
+
+\question[1] Какие из типов схем PDES позволяют добиться детерминизма симуляции?
+\begin{choices}
+    \correctchoice Барьерная (с доменами синхронизации)
+    \choice Консервативная (с пересылкой пустых сообщений)
+    \choice Консервативная (с блокировкой отправителя)
+    \choice Оптимистичная
+    \choice Наивная
+\end{choices}
+
+
+%\question[1] Выберите правильные варианты продолжения фразы: процесс исполнения потактовой модели на основе портов 
+%\begin{choices}
+%    \choice всегда содержит две фазы, порядок которых не фиксированный
+%    \choice всегда содержит одну фазу, в течение которой работают все субъединицы
+%    \choice может содержать более двух чередующихся фаз
+%    \correctchoice всегда содержит две фазы, которые обязаны чередоваться
+%\end{choices}
+
+%\question[1] Выберите правильные варианты завершения фразы: в потактовых моделях, созданных на основе концепции портов
+%\begin{choices}
+%	\choice при передаче данных порты не сохраняют бит валидности данных
+%    \choice при передаче данных порты не сохраняют бит валидности данных, только если он снят
+%    \choice при передаче данных порты не сохраняют бит валидности данных, только если он поднят
+%    \correctchoice при передаче данных порты сохраняют бит валидности данных
+%\end{choices}
+
+\question[1] Выберите правильный вариант окончания фразы: сцепленный интерпретатор работает быстрее переключаемого (switched), так как
+\begin{choices}
+    \correctchoice удачно использует предсказатель переходов хозяйского процессора
+    \choice кэширует недавно исполненные инструкции
+    \choice транслирует код в промежуточное представление
+    \choice не требует обработки исключений
+\end{choices}
+
+\question[1] Для какого класса схем PDES события в симулируемом прошлом не могут быть удалены сразу после их обработки, а требуют специальной процедуры <<fossil collection>>?
+\begin{choices}
+    \choice Барьерная (с доменами синхронизации)
+    \choice Консервативная (с пересылкой пустых сообщений)
+    \choice Консервативная (с блокировкой отправителя)
+    \correctchoice Оптимистичная
+\end{choices}
+
+
+\question[1] Выберите правильный вариант окончания фразы: в моделях DES события могут обрабатываться, если они находятся
+\begin{choices}
+    \choice только в голове очереди событий (самые поздние)
+    \correctchoice только в хвосте очереди событий (самые ранние)
+    \choice на любой позиции в очереди событий
+\end{choices}
+
+\question[1] Какой байт будет расположен по младшему адресу в памяти на Little Endian системе при записи числа \texttt{0xaabbccdd}?
+\begin{solution}[1cm]
+0xdd
+\end{solution}
+
+%\question[1] Выберите правильные варианты
+%\begin{choices}
+%    \choice    Темпы роста скорости оперативной памяти и процессоров одинаковы с 80-х годов 20 века.
+%    \choice Темп роста скорости оперативной памяти опережает темпы роста скорости работы процессоров
+%    \correctchoice Темп роста скорости процессоров опережает темпы роста скорости оперативной памяти 
+%\end{choices}
+
+%\question[1] Выберите правильные варианты: линия данных с фиксированным адресом
+%\begin{choices}
+%    \choice всегда попадает в одну и ту же ячейку кэша
+%    \correctchoice всегда попадает в один и тот же сет кэша
+%    \choice может быть сохранена в любой ячейке кэша
+%\end{choices}
+
+%\question[1] Какие сценарии представляют наибольшую сложность для метода симуляции с помощью трасс?
+%\begin{choices}
+%\choice Гостевое приложение с закрытым исходным кодом.
+%\choice Изучение производительности приложений.
+%\correctchoice Многопоточная гостевая система.
+%\end{choices}
+
+\question[1] Какие из данных инструкций архитектуры IA-32, скорее всего, не могут быть использованы в качестве волшебных?
+\begin{choices}
+	\choice \texttt{CPUID} --- идентификация процессора.
+	\correctchoice \texttt{INT} --- привилегированное программное прерывание.
+	\choice \texttt{NOP} --- пустая операция.
+	\correctchoice \texttt{JMP} --- безусловный переход.
+\end{choices}
+
+
+\question[1] Известно, что архитектура A имеет модель консистентности памяти, менее строгую, чем архитектура B, но более строгую, чем архитектура С. На каких хозяйских архитектурах симуляция памяти гостевой А не будет требовать использования явных барьеров?
+\begin{choices}
+    \correctchoice На A.
+    \correctchoice На B.
+    \choice На С.
+    \choice На B и C.
+    \choice Явная синхронизация потребуется во всех случаях.
+\end{choices}
+
+
+\endgradingrange{multiplechoice}
+
+\begingradingrange{fullquestions}
+
+\question[3] Дайте определение понятия <<полноплатформенный симулятор>>
+\begin{solution}[2cm]
+Симулятор,  способный запускать операционные системы и потому содержащий модели периферийных устройств.
+\end{solution}
+
+% \question[1] Дайте определение понятия <<потактовый симулятор>>
+% \begin{solution}[2cm]
+% Модель, обеспечивающая корректное выполнение алгоритмов отдельных инструкций и при этом высчитывающая задержки, возникающие при их исполнении.
+% \end{solution}
+
+\question[3] Опишите, что происходит на стадии \textbf{Fetch} работы процессора.
+\begin{solution}[1cm]
+Чтение из памяти машинного кода, соответствующего текущей инструкции.
+\end{solution}
+
+% \question[1] Опишите, что происходит на стадии \textbf{Writeback} работы процессора. Для каких инструкций эта стадия будет опущена?
+% \begin{solution}[2cm]
+% Запись результатов исполнения инструкции в память. Если результат должен быть сохранён в регистре, то фаза опускается.
+% \end{solution}
+
+\question[3] Какой вид программ обычно исполняется в непривилегированном режиме процессора?
+\begin{solution}[1cm]
+Пользовательские приложения.
+\end{solution}
+
+\question[3] Дайте определение понятия <<машинное слово>>.
+\begin{solution}[1cm]
+Максимальный объём данных, который процессор данной архитектуры способен обработать за одну инструкцию. 
+\end{solution}
+
+\question[3] Почему самый простой вид декодера машинных инструкций --- однотабличный --- не пользуется большой популярностью?
+\begin{solution}[1cm]
+    Размер таблицы растёт экспоненциально от длины опкода. Для архитектур, использующих больше 16 бит для кодирования инструкций, такая таблица становится несообразно огромной.
+\end{solution}
+
+\question[3] Дайте определение гипервизора первого типа.
+\begin{solution}[2cm]
+Гипервизоры первого типа (автономные гипервизоры) работают прямо на хозяйской аппаратуре, т.е. не требуют для своей работы операционной системы, беря её функции на себя и являясь привилегированными приложениями.
+\end{solution}
+
+%\question[3] Дайте определение величине MIPS, используемой для измерения скорости  программ.
+%\begin{solution}[1cm]
+%Количество миллионов инструкций, исполняющихся за одну секунду.
+%\end{solution}
+
+\question[3] Возможна ли указанная на рисунке ситуация в модели DES? Почему?
+\begin{center}
+\includegraphics[width=0.7\textwidth]{wrong-des-crop}
+\end{center}
+\begin{solution}[1cm]
+Ситуация невозможна. Событие не может быть левее счётчика текущего виртуального времени.
+\end{solution}
+
+\question[3] Перечислите отличия двоичной трансляции от компиляции с языков высокого уровня, мешаюшие применению классических оптимизаций последних.
+\begin{solution}[3cm]
+В входном языке ДТ отсутствуют имена переменных, границы блоков алгоритмов, нет разделения между кодом и данными.
+\end{solution}
+
+%\question[3] Сформулируйте закон баланса потока
+%\begin{solution}[1cm]
+%Скорость прибытия клиентов равна пропускной способности системы: $\lambda = X$.
+%\end{solution}
+
+\question[3] Дайте определение понятия <<исполняющее устройство>>
+\begin{solution}[1cm]
+Модель, изменение состояния которой контролируется ею самой, изнутри.
+\end{solution}
+
+\question[3] Как могут проявиться недостатки слишком большой квоты при симуляции многопроцессорной системы в составе DES?
+\begin{solution}[2cm]
+    Симуляция будет некорректной --- будут происходить таймауты взаимодействия моделируемых процессоров.
+\end{solution}
+
+\question[1] Почему симулятор не имеет права кэшировать регионы гостевой памяти, помеченные как отображённые на устройства?
+\begin{solution}[2cm]
+В отличие от простой памяти, хранящей данные без изменений, устройство может менять своё состояние и соответственно содержимое регионов памяти на каждом доступе к нему.
+\end{solution}
+
+
+\endgradingrange{fullquestions} 
+
+
+% \question[1] Перечислите все правильные виды сложностей, возникающих при разработке цифровых систем, успешно решаемые с помощью моделирования.
+% \begin{choices}
+% \correctchoice Большое число составляющих систему устройств со сложными взаимосвязями.
+% \choice Сложность получения лицензий на новое оборудование.
+% \correctchoice Обеспечение поддержки аппаратуры программными средствами разработки.
+% \end{choices}
+
+\begingradingrange{bonuswork}
+\bonusquestion \textit{Баллы за работу в течение семестра}
+\endgradingrange{bonuswork}
+
+% Some extra blank pages
+\newpage
+\phantom{Blank page}
+%\newpage
+%\phantom{Blank page}
+
+
+
+\end{questions}
+
+\end{document}
