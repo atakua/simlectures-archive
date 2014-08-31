@@ -3,3 +3,7 @@
 *.log
 *.aux
 *.synctex.gz
+*.nav
+*.snm
+*.tex.backup
+*.toc
