@@ -213,21 +213,46 @@
 
 
 
+% \begin{frame}{}
+% 
+% 
+% \end{frame}
 
-\begin{frame}{}
+\section{Практический пример}
 
+\begin{frame}[fragile]{Пример на модели \texttt{viper-busybox.simics}}
+Квота на восьмиядерной конфигурации:
+\begin{verbatim}
+simics> cpu-switch-time
+Current time quantum:     0.0001 s
+  200000.0  viper.mb.cpu0.core[0][0]
+  200000.0  viper.mb.cpu0.core[0][1]
+  200000.0  viper.mb.cpu0.core[1][0]
+  200000.0  viper.mb.cpu0.core[1][1]
+  200000.0  viper.mb.cpu0.core[2][0]
+  200000.0  viper.mb.cpu0.core[2][1]
+  200000.0  viper.mb.cpu0.core[3][0]
+  200000.0  viper.mb.cpu0.core[3][1]
+Default time quantum not set yet
+\end{verbatim}
 
 \end{frame}
 
 
-
-\section{Практический пример}
-
-\begin{frame}[fragile]{Пример на модели \texttt{viper}}
+\begin{frame}[fragile]{Пример на модели \texttt{viper-busybox.simics}}
+Симулируемое время на восьмиядерной конфигурации:
 \begin{verbatim}
-ptime
+simics> ptime -all
+processor                      steps      cycles  time [s]
+viper.mb.cpu0.core[0][0]  4602030000  5134030000     2.567
+viper.mb.cpu0.core[0][1]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[1][0]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[1][1]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[2][0]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[2][1]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[3][0]  4925600000  5134000000     2.567
+viper.mb.cpu0.core[3][1]  4925600000  5134000000     2.567
 \end{verbatim}
-\todo
     
 \end{frame}
 
@@ -236,7 +261,7 @@ ptime
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{sim-handbook} Handbook of Simulation. Principles, Methodology, Advances, Applications, and Practice / ed. by J. Banks. — John Wiley \& Sons, Inc., 1998. — ISBN 0-471-13403-1. — \url{http://books.google.com/books?id=dMZ1Zj3TBgAC} % http://lib.mipt.ru/book/288185/
+    \bibitem{simics-processor-integration} Wind River. Simics Processor Integration Guide.
 \end{thebibliography}
 \end{frame}
 
