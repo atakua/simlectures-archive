@@ -43,7 +43,7 @@
 % A new command to mark not done places
 \newcommand{\todo}[1][Напиши меня]{{\color{red}TODO\ #1}}
 
-\title{Симуляция, управляемая событиями. Многоагентная симуляция}
+\title{Симуляция, управляемая событиями}
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
@@ -256,16 +256,6 @@ foreach e in event_queue {
 
 \end{frame}
 
-\begin{frame}{Утрясаем детали}
-Что будет происходить с очередью событий при 
-\begin{enumerate}
-    \item записи в \texttt{reference} или \#RESET?
-    \item выключении таймера (ENABLE ← 0)?
-    \item чтении регистра \texttt{counter}?
-\end{enumerate}
-
-\end{frame}
-
 \section{Теория}
 
 \begin{frame}{Очередь событий}
@@ -296,22 +286,31 @@ foreach e in event_queue {
 
 \end{frame}
 
-
-
-\begin{frame}{Что содержится в одном событии}
-
+\begin{frame}{Содержимое и результаты}
+Что содержится в одном событии:
 \begin{itemize}
-\item Функция, которая должна быть вызвана.
-\item Объект, состояние которого изменяется.
+    \item функция, которая должна быть вызвана,
+    \item объект, состояние которого изменяется.
 \end{itemize}
 
-Результаты обработки события
+Результаты обработки события:
 \begin{itemize}
-\item Изменение состояния системы.
-\item Добавление/уничтожение событий.
+    \item изменение состояния системы,
+    \item добавление/уничтожение событий.
 \end{itemize}
 
 \end{frame}
+
+\begin{frame}{Вопросы}
+Что будет происходить с очередью событий при
+\begin{enumerate}
+    \item записи в \texttt{reference} или \#RESET?
+    \item выключении таймера (ENABLE ← 0)?
+    \item чтении регистра \texttt{counter}?
+\end{enumerate}
+
+\end{frame}
+
 
 \begin{frame}[fragile]{Алгоритм DES}
 
@@ -331,22 +330,23 @@ while (! empty(queue)) {
 
 \end{frame}
 
-\begin{frame}{Свойства событий}
-
-\begin{itemize}
-\item Порождаемые события не могут попасть в прошлое.
-\item Обработка событий может не только порождать события в будущем, но и отменять некоторые из них (ещё не обработанные).
-\item Несколько событий могут иметь одинаковую метку времени.
-\end{itemize}
-
-\end{frame}
+% \begin{frame}{Свойства событий}
+% 
+% \begin{itemize}
+% \item Порождаемые события не могут попасть в прошлое.
+% \item Обработка событий может не только порождать события в будущем, но и отменять некоторые из них (ещё не обработанные).
+% \item Несколько событий могут иметь одинаковую метку времени.
+% \end{itemize}
+% 
+% \end{frame}
 
 
 \section{Практический пример}
 
 \begin{frame}[fragile]{Пример на модели \texttt{or1k}}
-\begin{verbatim}
+\emph{Демо}
 
+\begin{verbatim}
 simics> log-level 1
 New global log level: 1
 simics> continue-cycles 199
@@ -365,7 +365,7 @@ simics> peq
 \end{frame}
 
 \section{Заключение}
-\begin{frame}{Что осталось нерассказанным}
+\begin{frame}{Дополнительные вопросы DES}
 \begin{itemize}
     \item Совместная работа с моделью процессора.
     \item Работа с несколькими процессорами сразу.
@@ -373,10 +373,20 @@ simics> peq
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Статьи для перевода}
+\url{https://github.com/yulyugin/ilab-simics/wiki/translation-list}
+\begin{itemize}
+    \item План статьи (описание всех секций).
+    \item Минимум 10000 символов.
+    \item Дедлайн — 31 декабря 2014 г.
+\end{itemize}
+\end{frame}
+
 \section{Литература}
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
+    \bibitem{patterson} Паттерсон Д., Хеннесси Дж. Архитектура компьютеров и проектирование компьютерных систем — СПб.: Питер — 2011 — 784~с. — ISBN 978-5-459-00291-1
     \bibitem{sim-handbook} Handbook of Simulation. Principles, Methodology, Advances, Applications, and Practice / ed. by J. Banks. — John Wiley \& Sons, Inc., 1998. — ISBN 0-471-13403-1. — \url{http://books.google.com/books?id=dMZ1Zj3TBgAC} % http://lib.mipt.ru/book/288185/
 \end{thebibliography}
 \end{frame}
