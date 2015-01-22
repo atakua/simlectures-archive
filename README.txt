@@ -1,1 +1,1 @@
-This folder contains lecture slides for the simulation course read in 2013 spring, 2014 spring, at Intel for 4th-grade students.
+This folder contains lecture slides for the simulation course read in 2015 spring at Intel for 4th-year bachelor students.
