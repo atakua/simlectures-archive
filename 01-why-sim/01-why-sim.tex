@@ -31,6 +31,8 @@
 \usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
 \usepackage[siunitx]{circuitikz}
 
+\graphicspath{./../../simbook/metoda/pictures/}
+
 % Be able to insert hyperlinks
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=black, filecolor=black, citecolor=black, urlcolor=blue , pdfauthor=Grigory Rechistov <grigory.rechistov@phystech.edu>, pdftitle=Курс «Программное моделирование вычислительных систем»}
@@ -52,7 +54,7 @@
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
 
-\typeout{Copyright 2014 Grigory Rechistov}
+\typeout{Copyright 2015 Grigory Rechistov}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
@@ -67,42 +69,73 @@
     \tableofcontents
 \end{frame}
 
-\section{История использования}
+\section{Сложность вычислительных систем}
 
-\begin{frame}{Атомарные инструкции}
+\begin{frame}{Сложность вычислительных систем}
 
-\begin{tikzpicture}[>=latex]
+\end{frame}
 
-\node[draw, circle] (core1) {Ядро 1};
+\begin{frame}{Почему разработка только на реальном железе невыгодна }
 
-\node[draw, circle, right = of core1] (core2) {Ядро 2};
+\begin{itemize}
+\item Количество доступных образцов мало
+\item Отладка очень сложна
+\item Цикл разработки длинный
+\end{itemize}
 
-\node[draw, circle, right = of core2] (core3) {Ядро 3};
+Стоимость разработки увеличивается.
 
-\node[draw, circle, right = of core3] (core4) {Ядро 4};
+I've noticed a shift during the past couple of years towards an increasing use of various types of simulation, including virtual platforms. Previously software developers wanted real hardware, but now they have to start using simulation because there's no chip available. Tomas Evensen, Wind River CTO.
 
-\node[below = 2cm of core1] (c1) {};
-\node[below = 2cm of core4] (c2) {};
+\end{frame}
 
-\node[draw, fit = (c1) (c2) ] (shmem) {Общая память} ;
+\begin{frame}
+\centering
 
-\path (core2.south) -- (core3.south) node[midway, yshift = -1cm] (lock) {\texttt{LOCK}};
-\draw[thick,] (core2) |- (lock);
-\draw[thick,->] (lock) -- (shmem);
+\includegraphics[width=0.8\textwidth]{ic-floor}
 
-\path (core1.south) |- (lock) coordinate[midway] (block1); %{X};
-\path (core3.south) |- (lock) coordinate[midway] (block3); %{X};
-\path (core4.south) |- (lock) coordinate[midway] (block4); %{X};
 
-\draw[->] (core1.south) -- (block1);
-\draw[->] (core3.south) -- (block3);
-\draw[->] (core4.south) -- (block4);
+\end{frame}
 
-\draw[dashed] (block1) -- (lock);
-\draw[dashed] (lock)   -- (block3);
-\draw[dashed] (block3) -- (block4);
+\begin{frame}{Программные модели}
+\centering 
+\include{./../../simbook/metoda/drawings/idea}
 
-\end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Области использования}
+
+\begin{itemize}
+\item Новое аппаратное обеспечение
+\item Совместная разработка аппаратуры и ПО
+\item Экспериментальные архитектуры
+\item Предсказание производительности, потребления мощности
+\item Обеспечение совместимости с другими архитектурами
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Симуляторы на различных этапах разработки}
+
+\include{./../../simbook/metoda/drawings/error-cost}
+
+\end{frame}
+
+\begin{frame}{Области использования}
+
+\end{frame}
+
+\begin{frame}{Области использования}
+
+\end{frame}
+
+\begin{frame}{Области использования}
+
+\end{frame}
+
+\begin{frame}{Области использования}
 
 \end{frame}
 
