@@ -45,11 +45,11 @@
 % A new command to mark not done places
 \newcommand{\todo}[1][Напиши меня]{{\color{red}TODO\ #1}}
 
-\title{Роль моделирования в процессе разработки программно-аппаратных платформ}
+\title{Роль моделирования в разработке программно-аппаратных платформ}
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
-\author[Григорий Речистов]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
+\author[]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
 \date{\today}
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
@@ -73,6 +73,12 @@
 
 \begin{frame}{Сложность вычислительных систем}
 
+\centering
+\includegraphics[width=0.7\textwidth]{ic-floor}
+
+\tiny{Иллюстрация из: P. Horowitz and W. Hill. 1989. The Art of Electronics. Cambridge University Press, New York, NY, USA}
+
+
 \end{frame}
 
 \begin{frame}{Почему разработка только на реальном железе невыгодна }
@@ -83,17 +89,11 @@
 \item Цикл разработки длинный
 \end{itemize}
 
-Стоимость разработки увеличивается.
+$\Rightarrow$ Стоимость разработки увеличивается
 
-I've noticed a shift during the past couple of years towards an increasing use of various types of simulation, including virtual platforms. Previously software developers wanted real hardware, but now they have to start using simulation because there's no chip available. Tomas Evensen, Wind River CTO.
+\bigskip
 
-\end{frame}
-
-\begin{frame}
-\centering
-
-\includegraphics[width=0.8\textwidth]{ic-floor}
-
+\tiny{I've noticed a shift during the past couple of years towards an increasing use of various types of simulation, including virtual platforms. Previously software developers wanted real hardware, but now they have to start using simulation because there's no chip available. \textit{Tomas Evensen, Wind River CTO}}
 
 \end{frame}
 
@@ -103,12 +103,13 @@ I've noticed a shift during the past couple of years towards an increasing use o
 
 \end{frame}
 
+\section{Области использования моделей}
 
 \begin{frame}{Области использования}
 
 \begin{itemize}
 \item Новое аппаратное обеспечение
-\item Совместная разработка аппаратуры и ПО
+\item Совместная разработка аппаратуры и программ
 \item Экспериментальные архитектуры
 \item Предсказание производительности, потребления мощности
 \item Обеспечение совместимости с другими архитектурами
@@ -117,27 +118,116 @@ I've noticed a shift during the past couple of years towards an increasing use o
 \end{frame}
 
 
-\begin{frame}{Симуляторы на различных этапах разработки}
+\begin{frame}{Новая аппаратура}
 
 \include{./../../simbook/metoda/drawings/error-cost}
 
 \end{frame}
 
-\begin{frame}{Области использования}
+\begin{frame}{Разработка программ и аппаратуры}
+
+\begin{itemize}
+\item Firmware, BIOS, UEFI
+\item Драйверы устройств
+\item Операционные системы
+\item Компиляторы
+\item Приложения
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Области использования}
+\begin{frame}{Совместная разработка}
+
+\includegraphics[width=0.8\textwidth]{shift-left} % TODO TikZ-elize this
 
 \end{frame}
 
-\begin{frame}{Области использования}
+\begin{frame}{Экспериментальные архитектуры}
+
+\begin{itemize}
+\item Новые ISA
+\item Многоядерные системы
+\item Векторные системы
+\item Безопасность и криптография
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Области использования}
+\begin{frame}{Предсказание производительности}
+
+\begin{itemize}
+\item Untimed
+\item Loosely timed
+\item Approximately timed
+\end{itemize}
 
 \end{frame}
+
+
+\begin{frame}{Обеспечение совместимости}
+\includegraphics[width=0.8\textwidth]{compat} % TODO TikZ-elize this
+
+\end{frame}
+
+\section{Термины}
+
+\begin{frame}{Терминология}
+\begin{itemize}
+\item Симуляция — моделирование системы через имитацию внешне видимых эффектов, возникающих при взаимодействии с ней
+\item Эмуляция — моделирование системы через имитацию внутренней структуры и процессов, происходящих внутри её подсистем
+\item Виртуализация — обеспечение эффективной изоляции нескольких систем друг от друга при одновременном и прозрачном доступе к ресурсам нижележащей системы
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Типы симуляторов}
+\begin{itemize}
+\item Полноплатформенные
+\item Режима приложения
+\item Функциональные
+\item Потактовые
+\item Программные
+\item Гибридные
+%\item 
+%\item 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Терминология}
+\begin{itemize}
+\item Хозяин, host, инструментальная система
+\item Гость, guest, target, целевая система
+%\item
+%\item
+\end{itemize}
+\end{frame}
+
+\section{Возможности}
+
+\begin{frame}{Некоторые возможности симуляции}
+\begin{itemize}
+\item Неразрушающее изучение
+\item Повторяемость запусков
+\item Сохранение состояния
+\item Синхронная остановка
+\item Обращение времени
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Итоги}
+\begin{itemize}
+\item Программные модели создаются до доступности аппаратуры
+\item Они используются повсеместно для совместной разработки программ и железа
+\item Симуляция позволяет делать вещи, о которых раньше можно было только мечтать
+\end{itemize}
+\end{frame}
+
+\begin{frame}{На следующей лекции}
+\begin{itemize}
+\item Требования на симуляторы
+\end{itemize}
+\end{frame}
+
 
 \section{Литература}
 
@@ -151,7 +241,6 @@ I've noticed a shift during the past couple of years towards an increasing use o
 \end{frame}
 
 
-\section{Конец}
 % The final "thank you" frame
 \begin{frame}
 
