@@ -68,9 +68,25 @@
 \section*{Обзор}
 
 \begin{frame}{На прошлой лекции}
+Требования к симуляторам:
+\begin{itemize}
+\item точность,
+\item скорость,
+\item совместимость/расширяемость
+\end{itemize}
+
 \end{frame}
 
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item В чём измеряется скорость симуляции? \pause
+\item Как соотносятся скорости функционального и потактового симуляторов? \pause
+\item Для чего необходимо предоставлять API симулятора? \pause Чтобы пользователи могли с ним поиграть.
+\end{itemize}
 
+\end{frame}
+
+% «»
 \begin{frame}{На этой лекции}
 \tableofcontents
 \end{frame} 
@@ -78,9 +94,9 @@
 % Use [fragile] option to insert listings
 % \begin{frame}[fragile]
 
-\section{Цикл работы процессора}
+\section{Конвейер процессора}
 
-\begin{frame}{Цикл работы процессора}
+\begin{frame}[shrink=0.8]{Конвейер процессора}
 \centering
 \include{./../../simbook/metoda/drawings/interp-cycle-expanded}
 \end{frame}
@@ -105,29 +121,16 @@ while (run) {
 \end{frame}
 
 
-\begin{frame}{Уточненный цикл работы}
-\centering
-
-\include{./../../simbook/metoda/drawings/interp-cycle-expanded-exception}
-
-\end{frame}
-
-
 \section{Fetch}
 
 \begin{frame}{Чтение инструкции из памяти}
 
-<<Простое>> чтение байт из памяти?
+\texttt{data = mem[pc];}
 
 \pause
+Скорее,
 
-\begin{itemize}
-    \item Невыровненный (\abbr unaligned) адрес в памяти. \\
-    Вызывает эффекты в некоторых архитектурах.
-    \pause\bigskip
-    \item Доступ на границе двух страниц памяти. \\
-    Разные страницы могут иметь разные характеристики.
-\end{itemize}
+\texttt{data = read_mem(pc);}
 
 \end{frame}
 
@@ -139,94 +142,134 @@ while (run) {
     \item Смешанный порядок (\abbr middle-endian).
 \end{itemize}
 
-\pause
-
-\begin{table}[htpb]
-    \centering
-    \begin{tabular}{|l|l|}
-    \hline
-    Представление   &   D4 + C3 * 100 + B2 * 10000 + A1 * 1000000   \\
-    \hline
-    Little-endian   &   D4, C3, B2, A1                              \\
-    \hline
-    Big-endian      &   A1, B2, C3, D4                              \\
-    \hline
-    \end{tabular}
-\end{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+Представление   &   D4 + C3 * 100 + B2 * 10000 + A1 * 1000000   \\
+\hline
+Little-endian   &   D4, C3, B2, A1                              \\
+\hline
+Big-endian      &   A1, B2, C3, D4                              \\
+\hline
+\end{tabular}
 
 \end{frame}
 
 \begin{frame}{Бит, байт, слово}
 
-Бит \pause — наименьшая единица информации.
+\begin{itemize}
+\item Бит \pause — ?
+\item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
+информации \pause
+\item Октет \pause — восемь бит \pause
+\item Машинное слово \pause — максимальный объём информации, который ЦПУ может обработать единовременно
+\end{itemize}
 
-\pause\bigskip
-
-Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
-информации.
-
-\pause\bigskip
-
-Октет — восемь бит.
-
-\pause\bigskip
-
-Машинное слово \pause — максимальный объём информации, который ЦПУ может
-обработать единовременно.
-
-\pause\bigskip
-
+\pause
 Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
 
 \end{frame}
 
 \section{Decode}
 
-\begin{frame}{Анатомия инструкции}
+\begin{frame}{Декодирование}
+Перевод данных об инструкции из машинного представления во внутреннее (высокоуровневое), удобное для последующего анализа
+\end{frame}
+
+\begin{frame}{Пример: MIPS}
 \centering
-\include{instruction-anatomy}
+
+\includegraphics[width=0.8\textwidth]{./mips-formats}
+
 \end{frame}
 
-\begin{frame}{Декодирование}
-Задача декодирования — перевод данных об инструкции из машинного представление
-во внутреннее (высокоуровневое) удобное для последующего анализа.
-
-\pause
-
-Вход: \texttt{\textcolor{red}{0x40} \textcolor{green}{0x05} \textcolor{blue}{0xab 0x12}}
-
-Результат:
-
-\texttt{instruction \{ \\
-~~~~opcode = \textcolor{red}{ADDI}, num\_operands = 2, \\
-~~~~\textcolor{green}{dst = \{type = OP\_REG, reg = R5\}}, \\
-~~~~\textcolor{blue}{src = \{type = OP\_IMM, val = 0x12ab\}}, \\
-~~~~disasm = "addi r5, 0x12ab", \\
-~~~~addr = 0x1234 \\
-\}}
+\begin{frame}[fragile]{Пример: код}
+\begin{verbatim}
+#define BITS(v, s, e) (v >> s) & (( 1 << (e-s+1)) - 1)
+typedef struct decode {/* ... */} decode_t;
+static inline int32_t sign_extend(uint32_t v, int width) 
+    {/* ... */};
+decode_t decode(uint32_t raw) {
+    uint32_t op = BITS(raw, 26, 31);
+    uint32_t rs = BITS(raw, 21, 25);
+    uint32_t rt = BITS(raw, 16, 20);
+    int32_t  imm = sign_extend(BITS(raw, 0, 15));
+    int32_t  tgt = sign_extend(BITS(raw, 0, 25));
+    /* ... */
+    uint32_t funct = BITS(raw, 0, 5);
+    return decode_t{op, rs, rt, imm, tgt, funct};
+}
+\end{verbatim}
 \end{frame}
 
+\begin{frame}{Более сложный пример: Intel IA-64 2.3}
+\centering
+\includegraphics[width=0.95\textwidth]{./ia64-formats}
+
+\tiny{Intel® Itanium® Architecture Software Developer’s Manual, p 3:296}
+
+\end{frame}
+
+\begin{frame}{Пример посложнее: Intel IA-32}
+\centering
+\includegraphics[width=0.95\textwidth]{./ia-32-evex}
+
+\tiny{J.C.S. Adrian et al. Systems, Apparatuses, and Methods for Blending Two Source Operands into a Single Destination Using a Writemask. US Patent Application Publication. №~2012/0254588 A1}
+
+\end{frame}
+
+\begin{frame}{Что извлекать из машинного кода инструкции}
+\centering
+\include{instruction-anatomy} % TODO convert to bitfields inlines
+
+На выходе декодера: успех, неуспех, недостаточно данных.
+
+\end{frame}
+
+
+% \begin{frame}{Декодирование}
+% Задача декодирования — перевод данных об инструкции из машинного представление
+% во внутреннее (высокоуровневое) удобное для последующего анализа.
+
+% \pause
+
+% Вход: \texttt{\textcolor{red}{0x40} \textcolor{green}{0x05} \textcolor{blue}{0xab 0x12}}
+
+% Результат:
+
+% \texttt{instruction \{ \\
+% ~~~~opcode = \textcolor{red}{ADDI}, num\_operands = 2, \\
+% ~~~~\textcolor{green}{dst = \{type = OP\_REG, reg = R5\}}, \\
+% ~~~~\textcolor{blue}{src = \{type = OP\_IMM, val = 0x12ab\}}, \\
+% ~~~~disasm = "addi r5, 0x12ab", \\
+% ~~~~addr = 0x1234 \\
+% \}}
+% \end{frame}
+
 \begin{frame}{Декодирование}
-Код декодера редко пишется вручную, он генерируется по описанию:
+Код декодера редко пишется вручную, чаще он генерируется по описанию.
 
 \texttt{\textcolor{red}{A5} \textcolor{blue}{Y}\textcolor{green}{X} 0\textcolor{orange}{Z} 00} $\Rightarrow$ \textcolor{red}{MOD} \textcolor{green}{RX}, \textcolor{blue}{RY}, \textcolor{orange}{RZ}
 
-\pause\bigskip
+В общем случае: классическаяя задача построения  синтаксического анализатора.
 
-В общем случае классическаяя задача построения  синтаксического анализатора.
+На практике: специализированные инструменты и языки.
+\end{frame}
 
-\pause\bigskip
+\begin{frame}{Декодирование: суровая реальность}
+\begin{itemize}
+\item Переменная длина инструкций. IA-32: от 8 до 120 бит. Сколько байт пытаться декодировать за один раз?
+\item Зависимость смысла от префикса, режима работы процессора. Пример: 0x48
+\item Полное несоответствие какому-либо здравому смыслу
+\end{itemize}
 
-Пример декодера — XED (x86 encoder-decoder) \url{https://software.intel.com/sites/landingpage/pintool/docs/61206/Xed/html/}.
 \end{frame}
 
 \begin{frame}{Дизассемблирование}
-Дизассемблирование — перевод инструкций из машинного представление понятный
-человеку вид (мнемонику).
+Дизассемблирование — перевод инструкций из машинного представление в понятный
+человеку вид (мнемонику).\pause
 
-\pause\bigskip
-
-Закодирование (encoding) — перевод инструкций из мнемонической записи в
+(За)кодирование (encoding) — перевод инструкций из мнемонической записи в
 машинный код.
 \end{frame}
 
@@ -246,6 +289,29 @@ s.r. пишутся на языке высокого уровня — перен
 Используются генераторы кода.
 
 Пример: SimGen — из одного описания генерируются декодер, дизассемблер и s.r.
+
+\end{frame}
+
+\begin{frame}[fragile]{Пример: ADD}
+\begin{verbatim}
+void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
+    cpu->regs[dst] = cpu->regs[src1] + cpu->regs[src2];
+\end{verbatim}
+\pause
+\begin{verbatim}
+    cpu->z_flag = cpu->regs[dst] == 0;
+    cpu->n_flag = cpu->regs[dst] & (1 << 31);
+    cpu->o_flag = cpu->regs[dst] < 
+            MAX(cpu->regs[src1], cpu->regs[src2]);
+    cpu->c_flag = calc_c_flag(cpu->regs[src1],
+                              cpu->regs[src2]);
+}
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{Пример посложнее}
+
 
 \end{frame}
 
@@ -284,62 +350,22 @@ s.r. пишутся на языке высокого уровня — перен
 \end{frame}
 
 
-\section{Практика}
+\section{Исключения}
 
-\begin{frame}{Структура кода}
+\begin{frame}[shrink=0.6]{Уточнённый цикл работы процессора}
+\centering
 
-Файл \texttt{modules/chip16/chip16.h}
-
-\texttt{struct chip16\_t;} — состояние процессора.
-
-\pause\bigskip
-
-Файл \texttt{modules/chip16/chip16.c}
-
-Функции:
-
-\begin{itemize}
-    \item chip16\_string\_decode — дизассемблер,
-    \item chip16\_execute — декодирование и исполнение,
-    \item cr\_register\_attributes — регистрация атрибутов.
-\end{itemize}
+\include{./../../simbook/metoda/drawings/interp-cycle-expanded-exception}
 
 \end{frame}
 
-\begin{frame}[fragile]{Тестирование}
-
-\texttt{test/chip16/unit-tests/nop/s-nop.py}
-
-\begin{verbatim}[language=python, basicstyle=\scriptsize]
-# This test checks NOP instruction
-import stest
-
-cli.run_command("run-python-file %s/targets/chip16/machine.py" % conf.sim.workspace)
-
-def test_nop_availability(cpu):
-    paddr = 0
-    cpu.pc = paddr
-    # NOP
-    simics.SIM_write_phys_memory(cpu, paddr, 0, 4)
-    SIM_continue(1)
-    stest.expect_equal(cpu.pc, paddr + 4)
-    print "NOP: success"
-
-test_nop_availability(conf.chip0)
-\end{verbatim}
-
-Запуск: \texttt{> bin/test-runner test/chip16/unit-tests/nop}
-\end{frame}
-
-\begin{frame}{Инструкции для реализации}
-\begin{enumerate}
-    \item MULI RX, HHLL;
-    \item XOR RX, RY;
-    \item ADD RX, RY;
-    \item SUB RX, RY;
-    \item CMPI RX, HHLL;
-    \item AND RX, RY, RZ.
-\end{enumerate}
+\begin{frame}{Классификация}
+Interruptions (термин из документации IA-64) — вмешательство, перерыв, приостановка
+Exception — синхронное исключение, без повторения текущей инструкции
+Fault — синхронное, с повторением текущей инструкции
+Trap — синхронные, общий случай для некоторой инструкции
+Interrupt — внешнее асинхронное прерывание
+Abort — внешние асинхронное с отсутствием информации о точке возврата
 \end{frame}
 
 
