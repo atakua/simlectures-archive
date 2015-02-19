@@ -65,6 +65,10 @@
     \maketitle
 \end{frame}
 
+\begin{frame}
+    \tableofcontents
+\end{frame}
+
 \section*{Обзор}
 
 \begin{frame}{На прошлой лекции}
@@ -87,9 +91,6 @@
 \end{frame}
 
 % «»
-\begin{frame}{На этой лекции}
-\tableofcontents
-\end{frame} 
 
 % Use [fragile] option to insert listings
 % \begin{frame}[fragile]
@@ -143,22 +144,17 @@ while (run) {
 \end{itemize}
 
 \centering
-\begin{tabular}{|l|l|}
-\hline
-Представление   &   D4 + C3 * 100 + B2 * 10000 + A1 * 1000000   \\
-\hline
+\begin{tabular}{ll}
+Представление   &   $D4 + C3 \times 0x100 + B2 \times 0x10000 + A1 \times 0x1000000$   \\
 Little-endian   &   D4, C3, B2, A1                              \\
-\hline
 Big-endian      &   A1, B2, C3, D4                              \\
-\hline
 \end{tabular}
 
 \end{frame}
 
 \begin{frame}{Бит, байт, слово}
-
 \begin{itemize}
-\item Бит \pause — ?
+\item Бит — ?\pause
 \item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
 информации \pause
 \item Октет \pause — восемь бит \pause
@@ -167,7 +163,6 @@ Big-endian      &   A1, B2, C3, D4                              \\
 
 \pause
 Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
-
 \end{frame}
 
 \section{Decode}
@@ -178,9 +173,7 @@ Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
 
 \begin{frame}{Пример: MIPS}
 \centering
-
 \includegraphics[width=0.8\textwidth]{./mips-formats}
-
 \end{frame}
 
 \begin{frame}[fragile]{Пример: код}
@@ -200,6 +193,7 @@ decode_t decode(uint32_t raw) {
     return decode_t{op, rs, rt, imm, tgt, funct};
 }
 \end{verbatim}
+
 \end{frame}
 
 \begin{frame}{Более сложный пример: Intel IA-64 2.3}
@@ -219,11 +213,15 @@ decode_t decode(uint32_t raw) {
 \end{frame}
 
 \begin{frame}{Что извлекать из машинного кода инструкции}
-\centering
+\begin{center}
 \include{instruction-anatomy} % TODO convert to bitfields inlines
+\end{center}
 
-На выходе декодера: успех, неуспех, недостаточно данных.
-
+На выходе декодера: 
+\begin{itemize}
+\item Успех, неуспех, недостаточно данных
+\item Для успеха: длина инструкции
+\end{itemize}
 \end{frame}
 
 
@@ -277,19 +275,16 @@ decode_t decode(uint32_t raw) {
 
 \begin{frame}{Исполнение}
 
-Базовая единица — функция-эмулятор одной инструкции (service routine).
-
-\bigskip
-
-s.r. пишутся на языке высокого уровня — переносимость кода между хозяйскими
+\begin{itemize}
+\item Базовая единица — функция-эмулятор одной инструкции (service routine).
+\item Service routine пишутся на языке высокого уровня — переносимость кода между хозяйскими
 платформами, компиляторами.
 
-\bigskip
+% Используются генераторы кода.
 
-Используются генераторы кода.
+% Пример: SimGen — из одного описания генерируются декодер, дизассемблер и s.r.
 
-Пример: SimGen — из одного описания генерируются декодер, дизассемблер и s.r.
-
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Пример: ADD}
@@ -307,48 +302,27 @@ void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
                               cpu->regs[src2]);
 }
 \end{verbatim}
-
 \end{frame}
 
-\begin{frame}{Пример посложнее}
-
+\begin{frame}{Пример посложнее: IA-32 CALL}
+\centering
+\includegraphics[width=0.95\textwidth]{./ia32-call}
 
 \end{frame}
 
 \section{Write Back}
 
 \begin{frame}{Запись результата в память}
-
-<<Обычная>> запись в память:
-
-\pause
+\texttt{write_mem(cpu, dst_addr, data);}\pause
 
 \begin{itemize}
-    \item Невыровненные адрес,
-    \item Граница страниц,
-    \item Попытка изменить регион памяти доступный только для чтения,
-    \item Часть результата может быть записана, а потом случится исключение.
+    \item Невыровненный адрес
+    \item Граница страниц
+    \item Запись в память «только для чтения»
+    \item Исключения для всего или части записи/чтения
 \end{itemize}
 
 \end{frame}
-
-\section{Advance \texttt{PC}}
-
-\begin{frame}{Продвижение \texttt{\$PC}}
-
-\begin{itemize}
-    \item Для большинства команд увеличение счетчика на длину обработанной инструкции. \\
-    Ислючение: \texttt{REP MOVS}.
-    \pause\bigskip
-    \item Явное изменение \texttt{\$PC} — команды управления исполнением:
-    \begin{itemize}
-        \item (Un)conditional (In)direct Jump/Branch,
-        \item Call/Return (subroutine).
-    \end{itemize}
-\end{itemize}
-
-\end{frame}
-
 
 \section{Исключения}
 
@@ -360,20 +334,140 @@ void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
 \end{frame}
 
 \begin{frame}{Классификация}
-Interruptions (термин из документации IA-64) — вмешательство, перерыв, приостановка
-Exception — синхронное исключение, без повторения текущей инструкции
-Fault — синхронное, с повторением текущей инструкции
-Trap — синхронные, общий случай для некоторой инструкции
-Interrupt — внешнее асинхронное прерывание
-Abort — внешние асинхронное с отсутствием информации о точке возврата
+\begin{itemize}
+\item Interruptions (термин из документации IA-64) — вмешательство, перерыв, приостановка
+\item Exception — синхронное исключение, без повторения текущей инструкции
+\item Fault — синхронное, с повторением текущей инструкции
+\item Trap — синхронные, общий случай для некоторой инструкции
+\item Interrupt — внешнее асинхронное прерывание
+\item Abort — внешние асинхронное с отсутствием информации о точке возврата
+\end{itemize}
 \end{frame}
 
+\section{Advance \texttt{PC}}
+
+\begin{frame}{Продвижение \texttt{PC}}
+
+\begin{itemize}
+    \item Для большинства команд: увеличение счетчика на длину обработанной инструкции.\\
+    \texttt{cpu->pc += instr_length;}\\
+    \pause{}Бывают исключения: \texttt{REP MOVS} в IA-32.\pause
+    \item Явное изменение \texttt{PC} — команды управления исполнением:
+    \begin{itemize}
+        \item (Без)условные (не)прямой прыжок/переход
+        \item Вызов/возврат из процедуры
+        \item Системный вызов
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\section{Улучшенные схемы}
+
+\begin{frame}{Преимущества и недостатки интерпретации}
+\begin{itemize}
+\item Пишется на языках высокого уровня: код переносим
+\item Простая структура: надёжность, расширяемость, переиспользование
+\end{itemize}
+\pause
+\begin{itemize}
+\item (Очень) низкая скорость работы
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Куда тратится время?}
+
+\todo картинка
+
+\pause
+\begin{itemize}
+\item Неэффективное использование аппаратуры
+\item Ненужные вызовы декодера
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Сцепленная интерпретация (Threaded interpretation)}
+Вместо возвращения к началу цикла «прыгаем» прямо на исполнение следующей инструкции
+\begin{verbatim}
+func0:
+  /* simulate instr0 */; PC++;
+  next_opcode = decode(fetch(PC));
+  goto func_ptr[next_opcode];
+func1:
+  /* simulate instr1 */; PC++;
+  next_opcode = decode(fetch(PC));
+  goto func_ptr[next_opcode];
+func2:
+  /* simulate instr2 */; PC++;
+  next_opcode = decode(fetch(PC));
+  goto func_ptr[next_opcode];
+\end{verbatim}
+
+\url{http://stackoverflow.com/questions/11227809/why-is-processing-a-sorted-array-faster-than-an-unsorted-array}
+\end{frame}
+
+\begin{frame}{Кэширующая интерпретация}
+В большинстве случаев в код гостевого приложения неизменен
+Велика вероятность того, что инструкции с некоторыми PC будут исполнены много раз (задача)
+Зачем каждый раз декодировать их?
+Заводим таблицу
+addr => decoded_instruction
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Кэширующая интерпретация}
+\begin{verbatim}
+while (true) {
+  if (operation = cache[PC]); // shortcut
+  else { // not in cache, long way
+  	operation = decode(fetch(PC));
+  	cache[PC] = operation;
+  }
+  switch (operation) {
+     /* ... */
+  }
+}
+\end{verbatim}
+
+\includegraphics[width=0.3\textwidth]{./cached}
+
+\end{frame}
+
+\begin{frame}{Кэширующая интерпретация}
+\begin{itemize}
+\item Ёмкость кэша ограничена
+\item Необходимо следить за неизменностью исходного кода
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Итоги}
+\begin{itemize}
+\item Фазы исполнения: F, D, E, W, A
+\item Decoder, disassembler, encoder
+\item Переключаемый (switched) И.
+\item Сцепленный (threaded) И.
+\item Кэшируюший И.
+\item Ситуации: interrupt, trap, exception, fault, abort
+\end{itemize}
+\end{frame}
+
+\section{Литература}
+
+\begin{frame}[allowframebreaks]{Литература}
+\begin{thebibliography}{99}
+    \bibitem{bochs} D. Mihoka , S. Shwartsman. Virtualization Without Direct Execution or Jitting: Designing a Portable Virtual Machine Infrastructure \url{http://bochs.sourceforge.net/}
+    \bibitem{simgen} Fredrik Larsson, Peter Magnusson, Bengt Werner. SimGen: Development of Efficient Instruction Set Simulators
+\url{ftp://ftp.sics.se/pub/SICS-reports/Reports/SICS-R--97-03--SE.ps.Z}
+    \bibitem{zsim} Yair Lifshitz, Robert Cohn, Inbal Livni, Omer Tabach, Mark Charney, Kim Hazelwood. Zsim: A Fast Architectural Simulator for ISA Design-Space Exploration \url{http://www.cs.virginia.edu/kim/docs/wish11zsim.pdf}
+\end{thebibliography}
+\end{frame}
 
 \section*{Конец}
 % The final "thank you" frame 
 
-
 \begin{frame}{На следующей лекции}
+Моделирование архитектурного состояния
 \end{frame}
 
 
