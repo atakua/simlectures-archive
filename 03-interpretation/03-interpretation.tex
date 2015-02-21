@@ -99,7 +99,7 @@
 
 \begin{frame}[shrink=0.8]{Конвейер процессора}
 \centering
-\include{./../../simbook/metoda/drawings/interp-cycle-expanded}
+\input{./../../simbook/metoda/drawings/interp-cycle-expanded}
 \end{frame}
 
 \begin{frame}[fragile]{Переключаемый интерпретатор (switched)}
@@ -108,7 +108,6 @@ while (run) {
     raw_code = fetch(PC);
     (opcode, operands) = decode(raw_code);
     switch (opcode) {
-
     case opcode1:
         func1(operands); PC++; break;
 
@@ -124,64 +123,57 @@ while (run) {
 
 \section{Fetch}
 
-\begin{frame}{Чтение инструкции из памяти}
+\begin{frame}[fragile]{Чтение инструкции из памяти}
 
-\texttt{data = mem[pc];}
+\texttt{data = mem[pc];}\pause
 
-\pause
 Скорее,
 
-\texttt{data = read_mem(pc);}
+\texttt{data = read_mem(pc);}\pause
 
-\end{frame}
+И не забыть про преобразование адресов:
 
-\begin{frame}{Порядок байт при доступах}
+\begin{verbatim}
+paddr = v2p(pc); // pc - vaddr
+data = mem[paddr];
+\end{verbatim}
 
-\begin{itemize}
-    \item Порядок от младшего к старшему (\abbr little-endian);
-    \item Порядок от старшего к младшему (\abbr big-endian);
-    \item Смешанный порядок (\abbr middle-endian).
-\end{itemize}
-
-\centering
-\begin{tabular}{ll}
-Представление   &   $D4 + C3 \times 0x100 + B2 \times 0x10000 + A1 \times 0x1000000$   \\
-Little-endian   &   D4, C3, B2, A1                              \\
-Big-endian      &   A1, B2, C3, D4                              \\
-\end{tabular}
-
-\end{frame}
-
-\begin{frame}{Бит, байт, слово}
-\begin{itemize}
-\item Бит — ?\pause
-\item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
-информации \pause
-\item Октет \pause — восемь бит \pause
-\item Машинное слово \pause — максимальный объём информации, который ЦПУ может обработать единовременно
-\end{itemize}
-
-\pause
-Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
 \end{frame}
 
 \section{Decode}
 
 \begin{frame}{Декодирование}
-Перевод данных об инструкции из машинного представления во внутреннее (высокоуровневое), удобное для последующего анализа
+Перевод данных об инструкции из машинного представления (последовательность байт) во внутреннее (высокоуровневое), удобное для последующего использования
 \end{frame}
 
 \begin{frame}{Пример: MIPS}
 \centering
 \includegraphics[width=0.8\textwidth]{./mips-formats}
+
+\tiny{MIPS Technologies Inc. MIPS32 4K™ Processor Core Family Software User’s Manual - 2002}
 \end{frame}
 
-\begin{frame}[fragile]{Пример: код}
+\begin{frame}[fragile]{Пример: код 1}
 \begin{verbatim}
 #define BITS(v, s, e) (v >> s) & (( 1 << (e-s+1)) - 1)
-typedef struct decode {/* ... */} decode_t;
-static inline int32_t sign_extend(uint32_t v, int width) 
+
+typedef struct decode {
+    uint32_t op;
+    uint32_t rs;
+    uint32_t rt;
+    int32_t  imm;
+    int32_t  tgt;
+    /* ... */
+} decode_t;
+
+static inline
+int32_t sign_extend(uint32_t v, int width) 
     {/* ... */};
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Пример: код 2}
+\begin{verbatim}
 decode_t decode(uint32_t raw) {
     uint32_t op = BITS(raw, 26, 31);
     uint32_t rs = BITS(raw, 21, 25);
@@ -190,17 +182,17 @@ decode_t decode(uint32_t raw) {
     int32_t  tgt = sign_extend(BITS(raw, 0, 25));
     /* ... */
     uint32_t funct = BITS(raw, 0, 5);
-    return decode_t{op, rs, rt, imm, tgt, funct};
+
+    return (decode_t){op, rs, rt, /* ... */, funct};
 }
 \end{verbatim}
-
 \end{frame}
 
 \begin{frame}{Более сложный пример: Intel IA-64 2.3}
 \centering
 \includegraphics[width=0.95\textwidth]{./ia64-formats}
 
-\tiny{Intel® Itanium® Architecture Software Developer’s Manual, p 3:296}
+\tiny{Intel Corporation. Intel® Itanium® Architecture Software Developer’s Manual, p 3:296}
 
 \end{frame}
 
@@ -214,7 +206,7 @@ decode_t decode(uint32_t raw) {
 
 \begin{frame}{Что извлекать из машинного кода инструкции}
 \begin{center}
-\include{instruction-anatomy} % TODO convert to bitfields inlines
+\input{instruction-anatomy} % TODO convert to bitfields inlines
 \end{center}
 
 На выходе декодера: 
@@ -245,30 +237,30 @@ decode_t decode(uint32_t raw) {
 % \end{frame}
 
 \begin{frame}{Декодирование}
-Код декодера редко пишется вручную, чаще он генерируется по описанию.
-
-\texttt{\textcolor{red}{A5} \textcolor{blue}{Y}\textcolor{green}{X} 0\textcolor{orange}{Z} 00} $\Rightarrow$ \textcolor{red}{MOD} \textcolor{green}{RX}, \textcolor{blue}{RY}, \textcolor{orange}{RZ}
-
-В общем случае: классическаяя задача построения  синтаксического анализатора.
-
-На практике: специализированные инструменты и языки.
+\begin{itemize}
+\item Код декодера редко пишется вручную, чаще он генерируется по описанию.
+\item \texttt{\textcolor{red}{A5} \textcolor{blue}{Y}\textcolor{green}{X} 0\textcolor{orange}{Z} 00} $\Rightarrow$ \textcolor{red}{MOD} \textcolor{green}{RX}, \textcolor{blue}{RY}, \textcolor{orange}{RZ}
+\item В общем случае: классическая задача построения  синтаксического анализатора.
+\item На практике: специализированные инструменты и языки.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Декодирование: суровая реальность}
 \begin{itemize}
 \item Переменная длина инструкций. IA-32: от 8 до 120 бит. Сколько байт пытаться декодировать за один раз?
-\item Зависимость смысла от префикса, режима работы процессора. Пример: 0x48
+\item Зависимость смысла от префикса, режима работы процессора. Пример: 0x40 - 0x4f в IA-32/Intel~64/AMD64
 \item Полное несоответствие какому-либо здравому смыслу
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Дизассемблирование}
-Дизассемблирование — перевод инструкций из машинного представление в понятный
-человеку вид (мнемонику).\pause
-
-(За)кодирование (encoding) — перевод инструкций из мнемонической записи в
-машинный код.
+\begin{itemize}
+\item Дизассемблирование — перевод инструкций из машинного представление в понятный
+человеку вид (мнемонику)
+\item (За)кодирование (encoding) — перевод инструкций из мнемонической записи в
+машинный код
+\end{itemize}
 \end{frame}
 
 \section{Execute}
@@ -277,7 +269,7 @@ decode_t decode(uint32_t raw) {
 
 \begin{itemize}
 \item Базовая единица — функция-эмулятор одной инструкции (service routine).
-\item Service routine пишутся на языке высокого уровня — переносимость кода между хозяйскими
+\item Функция-эмуляторы пишутся на языке высокого уровня $\rightarrow$ переносимость кода между хозяйскими
 платформами, компиляторами.
 
 % Используются генераторы кода.
@@ -287,12 +279,15 @@ decode_t decode(uint32_t raw) {
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Пример: ADD}
+\begin{frame}[fragile]{Пример: ADD reg reg reg}
 \begin{verbatim}
-void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
+typedef struct {uint32_t regs[16];} cpu_t;
+
+void add32_rrr(cpu_t *cpu, int src1, int src2, int dst) {
     cpu->regs[dst] = cpu->regs[src1] + cpu->regs[src2];
 \end{verbatim}
 \pause
+
 \begin{verbatim}
     cpu->z_flag = cpu->regs[dst] == 0;
     cpu->n_flag = cpu->regs[dst] & (1 << 31);
@@ -329,16 +324,16 @@ void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
 \begin{frame}[shrink=0.6]{Уточнённый цикл работы процессора}
 \centering
 
-\include{./../../simbook/metoda/drawings/interp-cycle-expanded-exception}
+\input{./../../simbook/metoda/drawings/interp-cycle-expanded-exception}
 
 \end{frame}
 
-\begin{frame}{Классификация}
+\begin{frame}{Классификация} % TODO a tree diagram?
 \begin{itemize}
 \item Interruptions (термин из документации IA-64) — вмешательство, перерыв, приостановка
 \item Exception — синхронное исключение, без повторения текущей инструкции
 \item Fault — синхронное, с повторением текущей инструкции
-\item Trap — синхронные, общий случай для некоторой инструкции
+\item Trap — синхронное, без повторения, намеренно вызванное
 \item Interrupt — внешнее асинхронное прерывание
 \item Abort — внешние асинхронное с отсутствием информации о точке возврата
 \end{itemize}
@@ -375,54 +370,59 @@ void add32_rr(cpu_t *cpu, int src1, int src2, int dst) {
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Куда тратится время?}
-
-\todo картинка
-
-\pause
-\begin{itemize}
-\item Неэффективное использование аппаратуры
-\item Ненужные вызовы декодера
-\end{itemize}
+\begin{frame}[fragile]{Куда тратится время?}
+\begin{verbatim}
+start: interruption = false;
+while (!interruption) {
+    raw_code = fetch(PC);
+    (opcode, operands) = decode(raw_code); // <-- здесь
+    switch (opcode) { // <-- здесь
+    case opcode1:
+        func1(operands); PC++; break;
+    case opcode2:
+        func2(operands); PC++; break;
+    /*...*/
+    }
+}
+handle_interruption();
+goto start;
+\end{verbatim}
 \end{frame}
 
-\begin{frame}[fragile]{Сцепленная интерпретация (Threaded interpretation)}
+\begin{frame}[fragile]{Сцепленная интерпретация (threaded interpretation)}
 Вместо возвращения к началу цикла «прыгаем» прямо на исполнение следующей инструкции
 \begin{verbatim}
-func0:
-  /* simulate instr0 */; PC++;
+func0: /* simulate instr0 */; PC++;
   next_opcode = decode(fetch(PC));
   goto func_ptr[next_opcode];
-func1:
-  /* simulate instr1 */; PC++;
+func1: /* simulate instr1 */; PC++;
   next_opcode = decode(fetch(PC));
   goto func_ptr[next_opcode];
-func2:
-  /* simulate instr2 */; PC++;
+func2: /* simulate instr2 */; PC++;
   next_opcode = decode(fetch(PC));
   goto func_ptr[next_opcode];
 \end{verbatim}
 
-\url{http://stackoverflow.com/questions/11227809/why-is-processing-a-sorted-array-faster-than-an-unsorted-array}
+\tiny\url{http://stackoverflow.com/questions/11227809/why-is-processing-a-sorted-array-faster-than-an-unsorted-array}
 \end{frame}
 
 \begin{frame}{Кэширующая интерпретация}
-В большинстве случаев в код гостевого приложения неизменен
-Велика вероятность того, что инструкции с некоторыми PC будут исполнены много раз (задача)
-Зачем каждый раз декодировать их?
-Заводим таблицу
-addr => decoded_instruction
-
+\begin{itemize}
+\item В большинстве случаев в код гостевого приложения неизменен
+\item Велика вероятность того, что инструкции с некоторыми PC будут исполнены много раз (\textit{задача})
+\item Зачем каждый раз их декодировать?
+\item Заводим таблицу соответствия «адрес инструкции $\rightarrow$ декодированный результат» 
+\end{itemize}
 
 \end{frame}
 
 \begin{frame}[fragile]{Кэширующая интерпретация}
 \begin{verbatim}
-while (true) {
-  if (operation = cache[PC]); // shortcut
-  else { // not in cache, long way
+while (!interruption) {
+  if (operation = cache[PC]); // короткий путь
+  else { // не в кэше, длинный путь
   	operation = decode(fetch(PC));
-  	cache[PC] = operation;
+  	cache[PC] = operation; // на будущее
   }
   switch (operation) {
      /* ... */
@@ -430,14 +430,14 @@ while (true) {
 }
 \end{verbatim}
 
-\includegraphics[width=0.3\textwidth]{./cached}
+% \includegraphics[width=0.3\textwidth]{./cached}
 
 \end{frame}
 
 \begin{frame}{Кэширующая интерпретация}
 \begin{itemize}
-\item Ёмкость кэша ограничена
-\item Необходимо следить за неизменностью исходного кода
+\item Ёмкость любого кэша ограничена, старые данные надо выбрасывать
+\item Необходимо следить за неизменностью исходного кода, иначе сохранённое соответствие будет неверным
 \end{itemize}
 \end{frame}
 
@@ -460,6 +460,10 @@ while (true) {
     \bibitem{simgen} Fredrik Larsson, Peter Magnusson, Bengt Werner. SimGen: Development of Efficient Instruction Set Simulators
 \url{ftp://ftp.sics.se/pub/SICS-reports/Reports/SICS-R--97-03--SE.ps.Z}
     \bibitem{zsim} Yair Lifshitz, Robert Cohn, Inbal Livni, Omer Tabach, Mark Charney, Kim Hazelwood. Zsim: A Fast Architectural Simulator for ISA Design-Space Exploration \url{http://www.cs.virginia.edu/kim/docs/wish11zsim.pdf}
+    
+    \bibitem{habr1} Префиксы в системе команд IA-32 \url{http://habrahabr.ru/company/intel/blog/200598/}
+    \bibitem{habr2} Программная симуляция микропроцессора. Коробка передач \url{http://habrahabr.ru/company/intel/blog/202926/}
+
 \end{thebibliography}
 \end{frame}
 
@@ -482,3 +486,37 @@ while (true) {
 \end{frame}
 
 \end{document}
+
+
+\begin{frame}{Порядок байт при доступах}
+
+\begin{itemize}
+    \item Порядок от младшего к старшему (\abbr little-endian);
+    \item Порядок от старшего к младшему (\abbr big-endian);
+    \item Смешанный порядок (\abbr middle-endian).
+\end{itemize}
+
+\centering
+\begin{tabular}{ll}
+Представление   &   $D4 + C3 \times 0x100 + B2 \times 0x10000 + A1 \times 0x1000000$   \\
+Little-endian   &   D4, C3, B2, A1                              \\
+Big-endian      &   A1, B2, C3, D4                              \\
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}{Бит, байт, слово}
+\begin{itemize}
+\item Бит — ?\pause
+\item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
+информации \pause
+\item Октет \pause — восемь бит \pause
+\item Машинное слово \pause — максимальный объём информации, который ЦПУ может обработать единовременно
+\end{itemize}
+
+\pause
+Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
+\end{frame}
+
+MMAP как механизм!!!
+
