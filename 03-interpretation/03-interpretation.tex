@@ -97,6 +97,13 @@
 
 \section{Конвейер процессора}
 
+\begin{frame}{Моделируемая система}
+\centering
+\vfill
+\input{./../../simbook/metoda/drawings/cpu-mem}
+\vfill
+\end{frame}
+
 \begin{frame}[shrink=0.8]{Конвейер процессора}
 \centering
 \input{./../../simbook/metoda/drawings/interp-cycle-expanded}
@@ -481,42 +488,13 @@ while (!interruption) {
 
 \vfill
 
+Слайды и материалы курса доступны по адресу \url{http://is.gd/ivuboc} % http://atakua.doesntexist.org/wordpress/simulation-course-russian/
+
+\vfill
+
 \tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная здесь точка зрения отражает личное мнение автора, не выступающего от лица какой-либо организации.}
 
 \end{frame}
 
 \end{document}
-
-
-\begin{frame}{Порядок байт при доступах}
-
-\begin{itemize}
-    \item Порядок от младшего к старшему (\abbr little-endian);
-    \item Порядок от старшего к младшему (\abbr big-endian);
-    \item Смешанный порядок (\abbr middle-endian).
-\end{itemize}
-
-\centering
-\begin{tabular}{ll}
-Представление   &   $D4 + C3 \times 0x100 + B2 \times 0x10000 + A1 \times 0x1000000$   \\
-Little-endian   &   D4, C3, B2, A1                              \\
-Big-endian      &   A1, B2, C3, D4                              \\
-\end{tabular}
-
-\end{frame}
-
-\begin{frame}{Бит, байт, слово}
-\begin{itemize}
-\item Бит — ?\pause
-\item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
-информации \pause
-\item Октет \pause — восемь бит \pause
-\item Машинное слово \pause — максимальный объём информации, который ЦПУ может обработать единовременно
-\end{itemize}
-
-\pause
-Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
-\end{frame}
-
-MMAP как механизм!!!
 
