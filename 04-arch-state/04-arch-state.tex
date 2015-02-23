@@ -73,7 +73,7 @@
 \section*{Обзор}
 
 \begin{frame}{На прошлой лекции}
-Интерпретаторы --- простой метод создания моделей процессоров
+Интерпретаторы — простой метод создания моделей процессоров
 
 \end{frame}
 
@@ -175,13 +175,106 @@ buf[offset] = val;
 \end{frame}
 
 \begin{frame}[fragile]{Ленивое выделение памяти}
-ds
+Для непрерывного дипазона адресов хранилище выделяется по мере необходимости кусками фиксированного размера (страницами).
+
+\begin{verbatim}
+page = addr & PAGE_MASK;
+hptr = lookup_hptr(page);
+if (!hptr)
+    hptr = allocate_hptr(page);
+assert(hptr);
+haddr = hptr + (addr & PAGE_OFFSET);
+\end{verbatim}
+При недостатке хозяйской памяти «старые» страницы выгружаются на диск.
+\end{frame}
+
+\begin{frame}[fragile]{Звучит знакомо?}
+\begin{itemize}
+\item Это же виртуальная память!
+\item POSIX-системы предоставляют механизм mmap()
+\end{itemize}
+
+\begin{verbatim}
+void *mmap(void *addr, 
+    size_t len, int prot, int flags,
+    int fildes, off_t off); 
+\end{verbatim}
+
+\centering
+
+\begin{tikzpicture}[>=latex, font=\small, node distance=0mm, inner xsep=0pt, text width = 10mm, every node/.style=draw]
+
+\begin{scope}[start chain]
+    \node [on chain] (vp0) {};
+    \node [on chain] {};
+    \node [fill=black!10, on chain] (vp2) {};
+    \node [fill=black!10, on chain] (vp3) {};
+    \node [on chain] {};
+    \node [on chain] {};
+    \node [on chain] {};    
+    \node [fill=black!10, on chain] (vp4) {};    
+    \node [fill=black!10, on chain] (vp1) {};    
+    \node [on chain] {};    
+    \node [fill=black!10, on chain] (vp5) {};    
+\end{scope}
+
+\begin{scope}[start chain]
+    \node [on chain, below=1cm of vp0] (pp1) {} ;
+    \node [on chain] (pp2) {};
+    \node [on chain] (pp3) {};
+    \node [on chain] (pp4) {};
+
+\end{scope}
+    \node [right=2cm of pp4] (dp1) {};    
+
+\draw[->] (vp1.south) -- (pp1.north);
+\draw[->] (vp2.south) -- (pp2.north);
+\draw[->] (vp3.south) -- (pp3.north);
+\draw[->] (vp4.south) -- (pp4.north);
+\draw[->] (vp5.south) -- (dp1.north);
+    
+\node[draw=none, above=0.1cm of vp0.east, text width=4cm, xshift=1cm] {Выделенный блок};
+\node[draw=none, below=0.1cm of pp1.east, text width=4cm, xshift=1cm] {Физические страницы};
+\node[draw=none, below=0.1cm of dp1.east, text width=4cm, xshift=1cm] {Дисковый своп};
+
+
+\end{tikzpicture}
+
+    % \path (0,0.5) coordinate (a1);
+    % \draw (0,0) rectangle (7.5,1);
+    % \node[left = 0.25cm of a1] (host-disk) {Массив};
+    
+    % \draw (3,-2) rectangle (7,-1);
+    % \node[below = 1.5cm of host-disk] {Гостевой диск};
+        
+    % \path[thick, fill=black!25] (1.2,0) rectangle (1.49,1);
+    % \path[fill=black!20] (1.51,0) rectangle (2.49,1);
+    % \path[fill=black!20] (2.51,0) rectangle (3.5,1);
+    
+    % \path[fill=black!20] (4.,-2) rectangle (4.99,-1);
+    % \path[fill=black!20] (5.01,-2) rectangle (6,-1);
+    
+    % \draw[<->] (4.25,-1) -- (2,0);
+    % \draw[<->] (5.25,-1) -- (3,0);
+    
+    % \path (4.5,-2) coordinate (a2);
+    % \node[below =0.25cm of a2, inner sep=1pt] (used) {Используемые области};
+    
+    % \draw[dotted] (used) -- (4.25,-2);
+    % \draw[dotted] (used) -- (5.25,-2);
+    
+    % \draw[decorate, decoration={brace, amplitude=3pt}, yshift=3pt] (1.2,1) -- (3.5,1) coordinate[midway] (a3);
+    % \path (1.35,1) coordinate (a4);
+    % \node[above = 0.1cm of a3] {Образ диска};    
+    
+
+
 \end{frame}
 
 \section{Регистры, поля, банки}
 
 \begin{frame}[fragile]{Два способа взаимодействия с регистрами устройств}
-PIO --- programmable I/O, выделенные инструкции для общения с периферией
+PIO — programmable I/O, выделенные инструкции для общения с периферией
 
 \begin{verbatim}
 IN EAX, DX
@@ -189,7 +282,7 @@ OUT DX, EAX
 \end{verbatim}
 \pause
 
-MMIO --- memory mapped I/O, унифицированный подход к доступу к ОЗУ и устройствам
+MMIO — memory mapped I/O, унифицированный подход к доступу к ОЗУ и устройствам
 
 \begin{verbatim}
 MOV [mem], reg
@@ -198,13 +291,12 @@ MOV reg, [mem]
 
 \end{frame}
 
-
 \begin{frame}{Операции над регистрами}
 \begin{itemize}
 \item read, write, fetch, prefetch
 \item Регистры-хранилище и регистры с побочными эффектами
 \item Примеры регистров с side-effects: time stamp (RW), command (W), status (R), version (RO)
-\item inquiry --- «призрачное» обращение (без эффектов)
+\item inquiry — «призрачное» обращение (без эффектов)
 \item reset
 \end{itemize}
 
@@ -212,14 +304,14 @@ MOV reg, [mem]
 
 \begin{frame}[fragile]{Операции над регистрами}
 \begin{verbatim}
-template <class regtype> class IRegister {
-    virtual Exception Read(regtype& retval) = 0;
-    virtual Exception Fetch(regtype& retval) = 0;
-    virtual Exception Prefetch(regtype& retval) = 0;
-    virtual Exception Write(const regtype& newval) = 0;
-    virtual bool InquiryRead(regtype& retval) = 0;
-    virtual bool InquiryWrite(const regtype& newval) = 0;
-    virtual void Reset() = 0;
+template <class rtype> class IRegister {
+  virtual Exception Read(rtype& retval) = 0;
+  virtual Exception Fetch(rtype& retval) = 0;
+  virtual Exception Prefetch(rtype& retval) = 0;
+  virtual Exception Write(const rtype& newval) = 0;
+  virtual bool InquiryRead(rtype& retval) = 0;
+  virtual bool InquiryWrite(const rtype& newval) = 0;
+  virtual void Reset() = 0;
 }
 \end{verbatim}
 \end{frame}
@@ -242,7 +334,7 @@ template <class regtype> class IRegister {
 \end{frame}
 
 \begin{frame}[fragile]{Банк регистров}
-Группа регистров устройства, находящиеся в одной области % непрерывной 
+Группа регистров устройства, находящиеся в одной области
 \vfill
 \centering
 
@@ -253,7 +345,7 @@ template <class regtype> class IRegister {
 };
 
 \node[right=of physspace] (bank) {
-\begin{bytefield}[bitwidth=.7em, endianness=big]{32}
+\begin{bytefield}[bitwidth=.5em, endianness=big]{32}
 \bitheader{31, 0}\\
 \wordbox{1}{reg_base}\\
 \wordbox{1}{reg_offset}\\
@@ -292,20 +384,19 @@ template <class regtype> class IRegister {
 \end{centering}
 
 \begin{itemize}
-\item Как моделировать отдельное прерывание --- очень просто:\\
+\item Как моделировать отдельное прерывание — очень просто:\\
 \texttt{take_interrupt(dev_t *dev);}
-\item Когда моделировать --- сложнее
+\item Когда моделировать — вопрос сложнее, тема отдельной лекции
 \end{itemize}
 
 \end{frame}
-
 
 \begin{frame}{Преобразование адресов}
 \begin{itemize}
 \item v2p
 \item p2h
 \item v2p + p2h =  v2h
-\item softTLB
+% \item softTLB
 \end{itemize}
 \end{frame}
 
