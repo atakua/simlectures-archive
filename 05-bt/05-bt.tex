@@ -107,7 +107,7 @@
 \begin{itemize}
 \item Basic, CPython, Shell
     \begin{itemize}
-    \item Прочитать строку - распознать команды - исполнить
+    \item Прочитать строку — распознать команды — исполнить
     \item Медленно, но больше «интерактивности»
     \end{itemize}
 \item Fortran, C, Pascal
@@ -120,8 +120,8 @@
 
 \begin{frame}{Двоичная трансляция}
 \begin{itemize}
-\item Входной язык - гостевой машинный код
-\item Целевой язык - хозяйский машинный код
+\item Входной язык — гостевой машинный код
+\item Целевой язык — хозяйский машинный код
 \item ДТ - перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA.
 \item Ради чего: многократное исполнение результатов трансляции
 \item \todo вопрос: что такое декомпиляция? (маш. код в ЯВО)
@@ -135,7 +135,7 @@
 
 \section{Алгоритмы}
 
-\begin{frame}{Алгоритм 1 - шаблонная трансляция}
+\begin{frame}{Алгоритм 1: шаблонная трансляция}
 \todo
 % \begin{itemize}
 translate() {
@@ -156,269 +156,108 @@ memcpy(return_jmp, bufptr);
 
 
 \begin{frame}{Капсула}
+\begin{itemize}
+    \item Гостевой код, архитектура IA-32 EMT (64 бит)
+    \item Хозяйский код, архитектура IA-32 (32 бит)
+\end{itemize}
+
 \centering
 \input{./../../simbook/metoda/drawings/capsule}
 
 \end{frame}
 
-\begin{frame}[fragile]{Ленивое выделение памяти}
-Для непрерывного дипазона адресов хранилище выделяется по мере необходимости кусками фиксированного размера (страницами).
 
-\begin{verbatim}
-page = addr & PAGE_MASK;
-hptr = lookup_hptr(page);
-if (!hptr)
-    hptr = allocate_hptr(page);
-assert(hptr);
-haddr = hptr + (addr & PAGE_OFFSET);
-\end{verbatim}
-При недостатке хозяйской памяти «старые» страницы выгружаются на диск.
-\end{frame}
-
-\begin{frame}[fragile]{Звучит знакомо?}
-\begin{itemize}
-\item Это же виртуальная память!
-\item POSIX-системы предоставляют механизм mmap()
-\end{itemize}
-
-\begin{verbatim}
-void *mmap(void *addr, 
-    size_t len, int prot, int flags,
-    int fildes, off_t off); 
-\end{verbatim}
-
+\begin{frame}{Блоки трансляции}
 \centering
-
-\begin{tikzpicture}[>=latex, font=\small, node distance=0mm, inner xsep=0pt, text width = 10mm, every node/.style=draw]
-
-\begin{scope}[start chain]
-    \node [on chain] (vp0) {};
-    \node [on chain] {};
-    \node [fill=black!10, on chain] (vp2) {};
-    \node [fill=black!10, on chain] (vp3) {};
-    \node [on chain] {};
-    \node [on chain] {};
-    \node [on chain] {};    
-    \node [fill=black!10, on chain] (vp4) {};    
-    \node [fill=black!10, on chain] (vp1) {};    
-    \node [on chain] {};    
-    \node [fill=black!10, on chain] (vp5) {};    
-\end{scope}
-
-\begin{scope}[start chain]
-    \node [on chain, below=1cm of vp0] (pp1) {} ;
-    \node [on chain] (pp2) {};
-    \node [on chain] (pp3) {};
-    \node [on chain] (pp4) {};
-
-\end{scope}
-    \node [right=2cm of pp4] (dp1) {};    
-
-\draw[->] (vp1.south) -- (pp1.north);
-\draw[->] (vp2.south) -- (pp2.north);
-\draw[->] (vp3.south) -- (pp3.north);
-\draw[->] (vp4.south) -- (pp4.north);
-\draw[->] (vp5.south) -- (dp1.north);
-    
-\node[draw=none, above=0.1cm of vp0.east, text width=4cm, xshift=1cm] {Выделенный блок};
-\node[draw=none, below=0.1cm of pp1.east, text width=4cm, xshift=1cm] {Физические страницы};
-\node[draw=none, below=0.1cm of dp1.east, text width=4cm, xshift=1cm] {Дисковый своп};
-
-
-\end{tikzpicture}
-
-    % \path (0,0.5) coordinate (a1);
-    % \draw (0,0) rectangle (7.5,1);
-    % \node[left = 0.25cm of a1] (host-disk) {Массив};
-    
-    % \draw (3,-2) rectangle (7,-1);
-    % \node[below = 1.5cm of host-disk] {Гостевой диск};
-        
-    % \path[thick, fill=black!25] (1.2,0) rectangle (1.49,1);
-    % \path[fill=black!20] (1.51,0) rectangle (2.49,1);
-    % \path[fill=black!20] (2.51,0) rectangle (3.5,1);
-    
-    % \path[fill=black!20] (4.,-2) rectangle (4.99,-1);
-    % \path[fill=black!20] (5.01,-2) rectangle (6,-1);
-    
-    % \draw[<->] (4.25,-1) -- (2,0);
-    % \draw[<->] (5.25,-1) -- (3,0);
-    
-    % \path (4.5,-2) coordinate (a2);
-    % \node[below =0.25cm of a2, inner sep=1pt] (used) {Используемые области};
-    
-    % \draw[dotted] (used) -- (4.25,-2);
-    % \draw[dotted] (used) -- (5.25,-2);
-    
-    % \draw[decorate, decoration={brace, amplitude=3pt}, yshift=3pt] (1.2,1) -- (3.5,1) coordinate[midway] (a3);
-    % \path (1.35,1) coordinate (a4);
-    % \node[above = 0.1cm of a3] {Образ диска};    
-    
-
-
-\end{frame}
-
-\section{Регистры, поля, банки}
-
-\begin{frame}[fragile]{Два способа взаимодействия с регистрами устройств}
-PIO — programmable I/O, выделенные инструкции для общения с периферией
-
-\begin{verbatim}
-IN EAX, DX
-OUT DX, EAX
-\end{verbatim}
-\pause
-
-MMIO — memory mapped I/O, унифицированный подход к доступу к ОЗУ и устройствам
-
-\begin{verbatim}
-MOV [mem], reg
-MOV reg, [mem]
-\end{verbatim}
-
-\end{frame}
-
-\begin{frame}{Операции над регистрами}
-\begin{itemize}
-\item read, write, fetch, prefetch
-\item Регистры-хранилище и регистры с побочными эффектами
-\item Примеры регистров с side-effects: time stamp (RW), command (W), status (R), version (RO)
-\item inquiry — «призрачное» обращение (без эффектов)
-\item reset
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}[fragile]{Операции над регистрами}
-\begin{verbatim}
-template <class rtype> class IRegister {
-  virtual Exception Read(rtype& retval) = 0;
-  virtual Exception Fetch(rtype& retval) = 0;
-  virtual Exception Prefetch(rtype& retval) = 0;
-  virtual Exception Write(const rtype& newval) = 0;
-  virtual bool InquiryRead(rtype& retval) = 0;
-  virtual bool InquiryWrite(const rtype& newval) = 0;
-  virtual void Reset() = 0;
-}
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile]{Битовые поля}
-
-\begin{bytefield}[bitwidth=0.8em, endianness=big]{32}
-\bitheader{31,19,18,17,16,15,13,12,11,8,7,0} \\
-\bitbox{13}{}&\bitbox{2}{\tiny{mode}} & \bitbox{1}{\rotatebox{90}{\tiny{mask}}} & \bitbox{3}{} & \bitbox{1}{\rotatebox{90}{\tiny{status}}} & \bitbox{4}{} & \bitbox{8}{vector} \\
-\end{bytefield}
-
-\tiny{APIC LVT Timer. Intel® 64 and IA-32 Architectures Software Developer’s Manual}
-
-\normalsize
-\begin{itemize}
-\item Настоящие базовые единицы спецификаций и моделирования
-\item Могут иметь совершенно различные свойства внутри регистра
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}[fragile]{Банк регистров}
-Группа регистров устройства, находящиеся в одной области
-\vfill
-\centering
-
-\begin{tikzpicture}[font=\small, >=latex]
-
-\node[text height=5cm, text width=1cm, draw]  (physspace) {
-
-};
-
-\node[right=of physspace] (bank) {
-\begin{bytefield}[bitwidth=.5em, endianness=big]{32}
-\bitheader{31, 0}\\
-\wordbox{1}{reg_base}\\
-\wordbox{1}{reg_offset}\\
-\bitbox{25}{reg_cmd_in} & \bitbox{7}{rsvd}\\
-\wordbox{2}{reg_data_out}\\
-\end{bytefield}
-};
-
-\draw (physspace.10) -- ([yshift=-0.25cm]bank.north west);
-\draw (physspace.350) -- ([yshift=0.5cm]bank.south west);
-
-\node[left=0cm of physspace.north west] {\texttt{0x0}};
-\node[left=0cm of physspace.south west] {\texttt{0xffff}};
-
-\end{tikzpicture}
-
-\end{frame}
-\begin{frame}{Карты памяти}
-\input{./../../simbook/metoda/drawings/memmap}
+\input{./../../simbook/metoda/drawings/bb-translation}
 % \begin{itemize}
-% \item 
+% \item
+% \item
+% \item
 % \item 
 % \end{itemize}
+
+
 \end{frame}
 
-\begin{frame}{Пример: devmgmt.msc}
+\begin{frame}{Алгоритм 2: just-in-time}
+    \todo
+\end{frame}
+
+\begin{frame}{Статическая и динамическая ДТ}
+\todo
+\end{frame}
+
+\begin{frame}{Оптимизации}
 \centering
+\input{./../../simbook/metoda/drawings/bt-optimization}
 
 \end{frame}
 
-\section{Прерывания}
+\begin{frame}{Почему оптимизации при ДТ затруднительны}
 
-\begin{frame}{Прерывания}
-\begin{centering}
-\input{./../../simbook/metoda/drawings/interrupt-line}
-\end{centering}
+В отличие от ЯВО, машинный код содержит
+меньше информации об исходном алгоритме
+Мы не можем делать многие предположения,
+необходимые для компиляторных оптимизаций
+без нарушения корректности
+–
+ Адреса переменных — их нет
+–
+ Границы процедур — их нет
+–
+ Адреса переходов — известна только часть из них
+\end{frame}
 
+\begin{frame}{Самомодифицирующийся код(self modifying code, SMC)}
+
+\end{frame}
+
+\begin{frame}{Обнаружение кода 1}
+
+\end{frame}
+
+\begin{frame}{Обнаружение кода 2}
+\input{./../../simbook/metoda/drawings/byte-shift}
+
+\end{frame}
+
+\begin{frame}{Опережающая трансляция}
+
+\end{frame}
+
+\begin{frame}{Трансляция горячего кода}
+
+\end{frame}
+
+\begin{frame}{Время компиляции и время исполнения}
+\todo новое
+\end{frame}
+
+\begin{frame}{Переключение таблиц}
+\todo новое
+\end{frame}
+
+
+\begin{frame}{Итоги}
 \begin{itemize}
-\item Как моделировать отдельное прерывание — очень просто:\\
-\texttt{take_interrupt(dev_t *dev);}
-\item Когда моделировать — вопрос сложнее, тема отдельной лекции
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Преобразование адресов}
-\begin{itemize}
-\item v2p
-\item p2h
-\item v2p + p2h =  v2h
-% \item softTLB
+\item Интерпретация, компиляция (трансляция)
+\item Двоичная трансляция. Статическая, динамическая трансляция
+\item Капсула
+\item SMC
+\item Code discovery
+\item (Не)возможность оптимизации кода при ДТ
 \end{itemize}
 \end{frame}
-
-\section{Endianness}
-
-\begin{frame}{Порядок байт при доступах}
-
-
-
-\end{frame}
-
-\begin{frame}{Бит, байт, слово}
-\begin{itemize}
-\item Бит — ?\pause
-\item Байт \pause — минимальная адресуемая (в данной архитектуре) единица хранения
-информации \pause
-\item Октет \pause — восемь бит \pause
-\item Машинное слово \pause — максимальный объём информации, который ЦПУ может обработать единовременно
-\end{itemize}
-
-\pause
-Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
-\end{frame}
-
 
 
 \section*{Литература}
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{bochsunderhood} Stanislav Shwartsman, Darek Mihoka. How Bochs Works Under the Hood. 2nd edition.
-    \url{http://bochs.sourceforge.net/How the Bochs works under the hood 2nd edition.pdf}
-    
-    \bibitem{bic} M. Domeika, M. Loenko, P. Ozhdikhin, E. Brevnov.  Bi-Endian Compiler: A Robust and High Performance Approach for Migrating Byte Order Sensitive Applications 
-    \url{http://world-comp.org/p2011/ESA2902.pdf}
+    \bibitem{vms} Jim Smith, Ravi Nair. Virtual Machines: Versatile Platforms for Systems and Processes. 2005
+    \bibitem{qemu} Fabrice Bellard. QEMU, a Fast and Portable Dynamic Translator \url{http://www.usenix.org/publications/library/proceedings/usenix05/tech/freenix/full_papers/bellard/bellard.pdf}
+
     
 \end{thebibliography}
 \end{frame}
