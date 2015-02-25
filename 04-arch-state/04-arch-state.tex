@@ -138,7 +138,7 @@ typedef struct cpu {
 \item Все гостевые регистры могут не поместиться
 \item Есть смысл размещать только самые часто используемые
 \item Потеря переносимости кода
-\item Особенности некоторых регистров
+\item Специализация регистров: PC, SP, FP[0-7]
 \item Мы мешаем работе компилятора: давление на регистры
 \end{itemize}
 \end{frame}
@@ -417,9 +417,10 @@ Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
     \bibitem{bochsunderhood} Stanislav Shwartsman, Darek Mihoka. How Bochs Works Under the Hood. 2nd edition.
     \url{http://bochs.sourceforge.net/How the Bochs works under the hood 2nd edition.pdf}
     
-    \bibitem{bic} M. Domeika, M. Loenko, P. Ozhdikhin, E. Brevnov.  Bi-Endian Compiler: A Robust and High Performance Approach for Migrating Byte Order Sensitive Applications 
+    \bibitem{bic} M. Domeika, M. Loenko, P. Ozhdikhin, E. Brevnov.  Bi-Endian Compiler: A Robust and High Performance Approach for Migrating Byte Order Sensitive Applications.
     \url{http://world-comp.org/p2011/ESA2902.pdf}
-    
+
+    \bibitem{ia32el} Leonid Baraz [et al.] IA-32 Execution Layer: a Two-Phase Dynamic Translator Designed to Support IA-32 Applications on Itanium®-Based Systems. \url{http://www.microarch.org/micro36/html/pdf/goldenberg-IA32ExecutionLayer.pdf}
 \end{thebibliography}
 \end{frame}
 
@@ -431,7 +432,7 @@ Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
 \item Можно ли сделать симулятор, работающий 
 быстрее, чем интерпретатор?
 \item Двоичная трансляция
-\item Двоичная инструментация
+% \item Двоичная инструментация
 \end{itemize}
 \end{frame}
 
@@ -450,8 +451,3 @@ Intel: word — 16 бит, dword — 32 бит, qword — 64 бит.
 \end{frame}
 
 \end{document}
-
-
-
-MMAP как механизм!!!
-
