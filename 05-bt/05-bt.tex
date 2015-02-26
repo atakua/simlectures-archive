@@ -30,8 +30,8 @@
 % Vector drawings
 \usepackage{tikz}
 % \usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
-\usetikzlibrary{shapes, calc, arrows, decorations.markings, decorations.pathmorphing, decorations, patterns, chains, snakes, backgrounds, positioning, fit, petri}
-\usepackage[siunitx]{circuitikz}
+\usetikzlibrary{shapes, calc, arrows, decorations.markings, decorations.pathreplacing, decorations.pathmorphing, decorations, patterns, chains, snakes, backgrounds, positioning, fit}
+% \usepackage[siunitx]{circuitikz}
 
 % Be able to insert hyperlinks
 \usepackage{hyperref}
@@ -93,24 +93,25 @@
 
 \begin{frame}{Что удалось соптимизировать в интерпретаторе}
 \begin{itemize}
-\item Fetch \todo{appearify}
-\item Decode
-\item Execute
-\item Writeback
-\item Advance PC
+\item \textbf<1>{Fetch} \only<1>{$\leftarrow$ оптимизировано}
+\item \textbf<1>{Decode} \only<1>{$\leftarrow$ оптимизировано}
+\item \textbf<2>{Execute} \only<2>{$\rightarrow$ осталось соптимизировать}
+\item \textbf<2>{Writeback} \only<2>{$\rightarrow$ осталось соптимизировать}
+\item \textbf<2>{Advance PC} \only<2>{$\rightarrow$ осталось соптимизировать}
 \end{itemize}
+
 \end{frame}
 
 \section{Компиляция и трансляция}
 
 \begin{frame}{Интерпретация и трансляция в языках высокого уровня}
 \begin{itemize}
-\item Basic, CPython, Shell
+\item BASIC, CPython, Shell\dots
     \begin{itemize}
     \item Прочитать строку — распознать команды — исполнить
     \item Медленно, но больше «интерактивности»
     \end{itemize}
-\item Fortran, C, Pascal
+\item Fortran, C, Pascal\dots
     \begin{itemize}
     \item Первый проход: распознавание команд и преобразование их в машинный код
     \item Второй проход: исполнение машинного кода
@@ -122,70 +123,97 @@
 \begin{itemize}
 \item Входной язык — гостевой машинный код
 \item Целевой язык — хозяйский машинный код
-\item ДТ - перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA.
+\item ДТ — перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA.
 \item Ради чего: многократное исполнение результатов трансляции
 \item \todo вопрос: что такое декомпиляция? (маш. код в ЯВО)
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Фазы ДТ}
+\begin{frame}{Статическая и динамическая ДТ}
+\begin{itemize}
+    \item Статическая трансляция исполняется заранее, до исполнения
+    \item Результат статической трансляции сохраняется на диске
+    \item Динамическая трансляция происходит непосредственно во время симуляции
+    \item Результат динамической трансляции хранится в памяти
+    \item Трансляция чередуется с исполнением генерированного кода
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Фазы динамической ДТ}
 \centering
 \input{./../../simbook/metoda/drawings/dynamic-bt}
 \end{frame}
 
 \section{Алгоритмы}
 
-\begin{frame}{Алгоритм 1: шаблонная трансляция}
-\todo
-% \begin{itemize}
-translate() {
-PC = start_addr;
-bufptr = start_buf;
-while (! enough) {
-instr = fetch(PC);
-opcode = decode(instr);
-capsule = capsules[opcode];
-memcpy(capsule, bufptr);
-PC ++;
-bufptr ++;
-};
-memcpy(return_jmp, bufptr);
-};
-% \end{itemize}
+\begin{frame}[fragile]{Алгоритм 1: шаблонная трансляция}
+\begin{tiny}
+\begin{itemize}
+    \item start_addr — гостевой адрес начала кода
+    \item start_buf — хозяйский буфер
+\end{itemize}
+\end{tiny}
+
+\begin{verbatim}
+translate(start_addr, start_buf) {
+    PC = start_addr; bufptr = start_buf;
+    while (!enough) {
+        instr = fetch(PC);
+        (opcode, operands) = decode(instr);
+        (capsule, length) = capsules[opcode];
+        memcpy(bufptr, capsule, length);
+        patch(bufptr, operands);
+        PC += instr_length;
+        bufptr += length;
+    }
+    memcpy(bufptr, glue_capsule, glue_length);
+}
+\end{verbatim}
 \end{frame}
 
+\begin{frame}[fragile]{Алгоритм 1: исполнение}
+
+\begin{verbatim}
+execute(start_buf) {
+    load_simulated_state();
+    goto start_buf;
+}
+\end{verbatim}
+\pause
+или
+\begin{verbatim}
+typedef void (*fblock)(void);
+execute(start_buf) {
+    load_simulated_state();
+    ((fblock)start_buf)();
+}
+\end{verbatim}
+
+\end{frame}
 
 \begin{frame}{Капсула}
-\begin{itemize}
-    \item Гостевой код, архитектура IA-32 EMT (64 бит)
-    \item Хозяйский код, архитектура IA-32 (32 бит)
-\end{itemize}
+
+\begin{small}
+\begin{tabular}{p{0.45\textwidth}p{0.4\textwidth}}
+Гостевой код, архитектура Intel~64 (64 бит) & Хозяйский код, архитектура IA-32 (32 бит)
+\end{tabular}
+\end{small}
 
 \centering
-\input{./../../simbook/metoda/drawings/capsule}
+\input{./../../simbook/metoda/drawings/capsule}\pause
 
+Вопрос: что из семантики забыто в описании капсулы?
 \end{frame}
 
 
 \begin{frame}{Блоки трансляции}
 \centering
 \input{./../../simbook/metoda/drawings/bb-translation}
-% \begin{itemize}
-% \item
-% \item
-% \item
-% \item 
-% \end{itemize}
-
-
 \end{frame}
 
 \begin{frame}{Алгоритм 2: just-in-time}
     \todo
-\end{frame}
-
-\begin{frame}{Статическая и динамическая ДТ}
-\todo
 \end{frame}
 
 \begin{frame}{Оптимизации}
@@ -196,30 +224,83 @@ memcpy(return_jmp, bufptr);
 
 \begin{frame}{Почему оптимизации при ДТ затруднительны}
 
-В отличие от ЯВО, машинный код содержит
-меньше информации об исходном алгоритме
-Мы не можем делать многие предположения,
-необходимые для компиляторных оптимизаций
-без нарушения корректности
-–
- Адреса переменных — их нет
-–
- Границы процедур — их нет
-–
- Адреса переходов — известна только часть из них
+\begin{itemize}
+    \item В отличие от ЯВО, машинный код содержит меньше информации об исходном алгоритме
+    \item Нельзя делать многие предположения, необходимые для компиляторных оптимизаций, без нарушения корректности
+    \item В случае динамической ДТ длительность оптимизаций ограничена временем их работы
+\end{itemize}\pause
+
+\begin{itemize}
+\item Адреса переменных — их нет
+\item Границы процедур — их нет
+\item Адреса переходов — известна только часть из них
+\end{itemize}
+
+
 \end{frame}
 
-\begin{frame}{Самомодифицирующийся код(self modifying code, SMC)}
+
+\begin{frame}{Самомодифицирующийся код (self modifying code)}
+\centering
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+    \node (guest) {Гость};
+    \node[right=3cm of guest] (host) {Хозяин};
+
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below =0.5cm of guest] (gi1) {};
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below = 0cm of gi1] (gi2) {};
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below = 0cm of gi2] (gi3) {};
+    \node[draw = red, minimum width = 3cm, cross out] at (gi3) {};
+
+    \node[draw, minimum width = 1.5cm, minimum height = 1cm, below =0.5cm of host] (hi1) {};
+    \node[draw, minimum width = 1.5cm, minimum height = 2cm, below = 0cm of hi1] (hi2) {};
+    \node[draw, minimum width = 1.5cm, minimum height = 1.5cm, below = 0cm of hi2] (hi3) {};
+
+    \draw[->] (gi1.east) to (hi1.west);
+    \draw[->] (gi2.east) to (hi2.west);
+    \draw[->] (gi3.east) to (hi3.west);
+
+    \draw[->, dashed, thick, ] (hi2.center) .. controls (0, -5) and (-3, -3) .. (gi3.west) node[pos=0.3, below] {Запись в код};
+    
+\end{tikzpicture}
 
 \end{frame}
 
 \begin{frame}{Обнаружение кода 1}
+\begin{itemize}
+    \item Найти границы инструкций
+    \item Отличить код от данных
+\end{itemize}
+\centering
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+    \node (guest) {Гость};
+    \node[right=3cm of guest] (host) {Хозяин};
+
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below =0.5cm of guest] (gi1) {};
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below = 0cm of gi1] (gi2) {};
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below = 0cm of gi2] (gi3) {};
+    \node[draw, minimum width = 2cm, minimum height = 0.5cm, below = 0cm of gi3] (gjmp) {jmp \$pc-6};
+
+    \node[draw, minimum width = 1.5cm, minimum height = 1cm, below =0.5cm of host] (hi1) {};
+    \node[draw, minimum width = 1.5cm, minimum height = 1.5cm, below = 0cm of hi1] (hi2) {};
+    \node[draw, minimum width = 1.5cm, minimum height = 1cm, below = 0cm of hi2] (hi3) {};
+    \node[draw, minimum width = 1.5cm, minimum height = 0.5cm, below = 0cm of hi3] (hi4) {jmp \$pc-?};
+
+    \draw[->] (gi1.east) to (hi1.west);
+    \draw[->] (gi2.east) to (hi2.west);
+    \draw[->] (gi3.east) to (hi3.west);
+
+    \draw[->] (gjmp.south) |- ([xshift=-2cm, yshift=-0.5cm]gjmp.south) |- (gi1.south west);
+    
+\end{tikzpicture}
 
 \end{frame}
 
 \begin{frame}{Обнаружение кода 2}
+\begin{center}
 \input{./../../simbook/metoda/drawings/byte-shift}
+\end{center}
 
+По этой причине статическое пре-декодирование не всегда возможно
 \end{frame}
 
 \begin{frame}{Опережающая трансляция}
@@ -241,15 +322,15 @@ memcpy(return_jmp, bufptr);
 
 \begin{frame}{Итоги}
 \begin{itemize}
-\item Интерпретация, компиляция (трансляция)
-\item Двоичная трансляция. Статическая, динамическая трансляция
+\item Интерпретация, компиляция, трансляция
+\item Двоичная трансляция. Статическая и динамическая трансляция
 \item Капсула
-\item SMC
-\item Code discovery
-\item (Не)возможность оптимизации кода при ДТ
+\item Промежуточное представление
+\item Самомодифицирующийся код
+\item Обнаружение кода
+\item Сложности оптимизации кода при ДТ
 \end{itemize}
 \end{frame}
-
 
 \section*{Литература}
 
@@ -257,8 +338,7 @@ memcpy(return_jmp, bufptr);
 \begin{thebibliography}{99}
     \bibitem{vms} Jim Smith, Ravi Nair. Virtual Machines: Versatile Platforms for Systems and Processes. 2005
     \bibitem{qemu} Fabrice Bellard. QEMU, a Fast and Portable Dynamic Translator \url{http://www.usenix.org/publications/library/proceedings/usenix05/tech/freenix/full_papers/bellard/bellard.pdf}
-
-    
+    \bibitem{fx32} Anton Chernoff and Ray Hookway. {DIGITAL FX!32} Running 32-Bit x86 Applications on {Alpha} {NT} \url{http://www.usenix.org/publications/library/proceedings/usenix-nt97/full_papers/chernoff/chernoff.pdf}
 \end{thebibliography}
 \end{frame}
 
@@ -266,10 +346,11 @@ memcpy(return_jmp, bufptr);
 % The final "thank you" frame 
 
 \begin{frame}{На следующей лекции}
+\centering
 
 Ещё быстрее! Прямое исполнение
+\vfill
 
-\centering
 \includegraphics[width=0.5\textwidth]{./moar}
 \end{frame}
 
