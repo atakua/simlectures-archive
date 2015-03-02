@@ -69,8 +69,6 @@
     \tableofcontents
 \end{frame}
 
-\section*{Обзор}
-
 \begin{frame}{На прошлой лекции}
 Требования к симуляторам:
 \begin{itemize}
@@ -246,17 +244,17 @@ decode_t decode(uint32_t raw) {
 
 \begin{frame}{Декодирование}
 \begin{itemize}
-\item Код декодера редко пишется вручную, чаще он генерируется по описанию.
+\item Код декодера редко пишется вручную, чаще он генерируется по описанию
 \item \texttt{\textcolor{red}{A5} \textcolor{blue}{Y}\textcolor{green}{X} 0\textcolor{orange}{Z} 00} $\Rightarrow$ \textcolor{red}{MOD} \textcolor{green}{RX}, \textcolor{blue}{RY}, \textcolor{orange}{RZ}
-\item В общем случае: классическая задача построения  синтаксического анализатора.
-\item На практике: специализированные инструменты и языки.
+\item В общем случае: классическая задача построения  синтаксического анализатора
+\item На практике: специализированные инструменты и языки
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Декодирование: суровая реальность}
 \begin{itemize}
 \item Переменная длина инструкций. IA-32: от 8 до 120 бит. Сколько байт пытаться декодировать за один раз?
-\item Зависимость смысла от префикса, режима работы процессора. Пример: 0x40 - 0x4f в IA-32/Intel~64/AMD64
+\item Зависимость смысла от префикса, режима работы процессора. Пример: 0x40–0x4f в IA-32/Intel~64/AMD64
 \item Полное несоответствие какому-либо здравому смыслу
 \end{itemize}
 
@@ -269,6 +267,8 @@ decode_t decode(uint32_t raw) {
 \item (За)кодирование (encoding) — перевод инструкций из мнемонической записи в
 машинный код
 \end{itemize}
+\pause
+Вопрос: однозначны ли операции: декодирования, дизассемблирования, кодирования?
 \end{frame}
 
 \section{Execute}
@@ -276,9 +276,9 @@ decode_t decode(uint32_t raw) {
 \begin{frame}{Исполнение}
 
 \begin{itemize}
-\item Базовая единица — функция-эмулятор одной инструкции (service routine).
+\item Базовая единица — функция-эмулятор одной инструкции (service routine)
 \item Функция-эмуляторы пишутся на языке высокого уровня $\rightarrow$ переносимость кода между хозяйскими
-платформами, компиляторами.
+платформами, компиляторами
 
 % Используются генераторы кода.
 
@@ -287,9 +287,22 @@ decode_t decode(uint32_t raw) {
 \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]{Симулируемое состояние}
+\begin{verbatim}
+typedef struct {
+    uint32_t regs[16];
+    bool z_flag;
+    bool n_flag;
+    bool o_flag;
+    bool c_flag;
+    uint32_t pc;
+} cpu_t;
+\end{verbatim}
+\end{frame}
+
+
 \begin{frame}[fragile]{Пример: ADD reg reg reg}
 \begin{verbatim}
-typedef struct {uint32_t regs[16];} cpu_t;
 
 void add32_rrr(cpu_t *cpu, int src1, int src2, int dst) {
     cpu->regs[dst] = cpu->regs[src1] + cpu->regs[src2];
@@ -316,13 +329,13 @@ void add32_rrr(cpu_t *cpu, int src1, int src2, int dst) {
 \section{Write Back}
 
 \begin{frame}{Запись результата в память}
-\texttt{write_mem(cpu, dst_addr, data);}\pause
+\texttt{write_mem(cpu, dst_addr, data, size);}\pause
 
 \begin{itemize}
     \item Невыровненный адрес
     \item Граница страниц
     \item Запись в память «только для чтения»
-    \item Исключения для всего или части записи/чтения
+    \item Исключения для всей или части записи/чтения
 \end{itemize}
 
 \end{frame}
@@ -352,12 +365,12 @@ void add32_rrr(cpu_t *cpu, int src1, int src2, int dst) {
 \begin{frame}{Продвижение \texttt{PC}}
 
 \begin{itemize}
-    \item Для большинства команд: увеличение счетчика на длину обработанной инструкции.\\
-    \texttt{cpu->pc += instr_length;}\\
-    \pause{}Бывают исключения: \texttt{REP MOVS} в IA-32.\pause
+    \item Для большинства команд: увеличение счетчика на длину обработанной инструкции\\
+    \texttt{cpu->pc += instr_length;}\\\pause
+    \item Бывают исключения: \texttt{REP MOVS} в IA-32\pause
     \item Явное изменение \texttt{PC} — команды управления исполнением:
     \begin{itemize}
-        \item (Без)условные (не)прямой прыжок/переход
+        \item (Без)условный (не)прямой прыжок/переход
         \item Вызов/возврат из процедуры
         \item Системный вызов
     \end{itemize}
@@ -460,8 +473,6 @@ while (!interruption) {
 \end{itemize}
 \end{frame}
 
-\section{Литература}
-
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
     \bibitem{bochs} D. Mihoka , S. Shwartsman. Virtualization Without Direct Execution or Jitting: Designing a Portable Virtual Machine Infrastructure \url{http://bochs.sourceforge.net/}
@@ -475,14 +486,12 @@ while (!interruption) {
 \end{thebibliography}
 \end{frame}
 
-\section*{Конец}
-% The final "thank you" frame 
-
 \begin{frame}{На следующей лекции}
 Моделирование архитектурного состояния
 \end{frame}
 
 
+% The final "thank you" frame 
 \begin{frame}
 
 {\huge{Спасибо за внимание!}\par}
