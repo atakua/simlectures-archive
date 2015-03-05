@@ -11,6 +11,7 @@
 \usepackage{longtable}
 \usepackage{csquotes}
 \usepackage{standalone}
+\usepackage{bytefield}
 
 % Setup fonts
 \newfontfamily\russianfont{CMU Serif}
@@ -28,8 +29,9 @@
 
 % Vector drawings
 \usepackage{tikz}
-\usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
-\usepackage[siunitx]{circuitikz}
+% \usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
+\usetikzlibrary{shapes, calc, arrows, decorations.markings, decorations.pathreplacing, decorations.pathmorphing, decorations, patterns, chains, snakes, backgrounds, positioning, fit, shadows}
+% \usepackage[siunitx]{circuitikz}
 
 % Be able to insert hyperlinks
 \usepackage{hyperref}
@@ -42,17 +44,18 @@
 
 % A new command to mark not done places
 \newcommand{\todo}[1][Напиши меня]{{\color{red}TODO\ #1}}
+\newcommand{\abbr}{\textit{англ.}\ }
 
-\title{Роль моделирования в процессе разработки программно-аппаратных платформ}
+\title{Прямое исполнение}
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
-\author[Григорий Речистов]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
+\author[]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
 \date{\today}
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
 
-\typeout{Copyright 2014 Grigory Rechistov}
+\typeout{Copyright 2015 Grigory Rechistov}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
@@ -67,58 +70,197 @@
     \tableofcontents
 \end{frame}
 
-\section{История использования}
 
-\begin{frame}{Атомарные инструкции}
+\begin{frame}{На прошлой лекции}
+\begin{itemize}
+\item Интерпретаторы — медленная шутка
+\item Двоичная трансляция быстрее, потому что вычисляет «меньше»
+\end{itemize}
+\end{frame}
 
-\begin{tikzpicture}[>=latex]
-
-\node[draw, circle] (core1) {Ядро 1};
-
-\node[draw, circle, right = of core1] (core2) {Ядро 2};
-
-\node[draw, circle, right = of core2] (core3) {Ядро 3};
-
-\node[draw, circle, right = of core3] (core4) {Ядро 4};
-
-\node[below = 2cm of core1] (c1) {};
-\node[below = 2cm of core4] (c2) {};
-
-\node[draw, fit = (c1) (c2) ] (shmem) {Общая память} ;
-
-\path (core2.south) -- (core3.south) node[midway, yshift = -1cm] (lock) {\texttt{LOCK}};
-\draw[thick,] (core2) |- (lock);
-\draw[thick,->] (lock) -- (shmem);
-
-\path (core1.south) |- (lock) coordinate[midway] (block1); %{X};
-\path (core3.south) |- (lock) coordinate[midway] (block3); %{X};
-\path (core4.south) |- (lock) coordinate[midway] (block4); %{X};
-
-\draw[->] (core1.south) -- (block1);
-\draw[->] (core3.south) -- (block3);
-\draw[->] (core4.south) -- (block4);
-
-\draw[dashed] (block1) -- (lock);
-\draw[dashed] (lock)   -- (block3);
-\draw[dashed] (block3) -- (block4);
-
-\end{tikzpicture}
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item ЯВО → маш. код — компиляция. Маш.~код → маш.~код — ДТ. А что такое маш.~код → ЯВО?\pause{} Декомпиляция.\pause
+\item А ЯВО → ЯВО?\pause Source-level компилятор\pause
+\item В каких случаях ДТ будет медленнее интерпретации на одной и той же гостевой программе? \pause Если программа полна SMC.
+\end{itemize}
 
 \end{frame}
 
-\section{Литература}
+% «»
+
+\section{Прямое исполнение}
+
+\begin{frame}{Когда применимо прямое исполнение}
+\begin{itemize}
+\item Когда гостевая ISA совпадает с хозяйской
+\item Ну или почти совпадает
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Алгоритм}
+\begin{itemize}
+
+\item вв
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Почему это не будет работать}
+\begin{itemize}
+\item Не полностью совпадающие ISA
+
+\item Различное положение внешних ресурсов
+(устройств и памяти)
+
+\item Привилегированность инструкций
+
+\item Необходимость изоляции симулятора от
+обнаружения и разрушения гостем
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Почему это не будет работать}
+
+
+add \%r1, \%r2
+
+mul \$10, \%r3
+
+div \%r4, \%r5 Отсутствующая в хозяине инструкция
+
+ld (0xa000), \%r10 Другое расположение в памяти
+
+st \%r10, (\%r11)
+
+sub \%r11, \%r1
+
+mov \$16, \%r13
+
+mov \%r13, \%cr0 Привилегированные инструкции
+
+trap \$32
+
+
+\end{frame}
+
+\section{Предпросмотр}
+
+\begin{frame}{Предпросмотр кода}
+
+\end{frame}
+
+
+\begin{frame}{Заплатки и заглушки}
+
+\end{frame}
+
+\begin{frame}{Двоичная инструментация}
+•••Общее название методики
+исследования и модификации
+приложений
+Pin http://pintool.org
+DynamoRIO http://dynamorio.org/
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Сложности DEX}
+
+•••••Необходимость предпросмотра негативно
+влияет на производительность симуляции
+Необходимость контролировать SMC
+Переменная длина инструкций усложняет
+stubbing/patching
+Необходимо контролировать время
+исполнения гостя
+• А как это делается в многозадачных
+вытесняющих ОС?
+Для DEX оптимально иметь аппаратную
+поддержку на хозяине
+
+\end{frame}
+
+\begin{frame}{Спектр симуляционных подходов}
+
+\end{frame}
+
+\section{Коробка передач}
+
+\begin{frame}{Коробка передач}
+
+\end{frame}
+
+
+\begin{frame}{Динамическое переключение режимов}
++Оптимальное использование
+лучших сторон каждого из подходов
+- Необходимость разработки
+фактически нескольких симуляторов
+
+\end{frame}
+
+\begin{frame}{Итоги}
+
+Наивное прямое исполнение
+Заплатки и заглушки
+DEX с аппаратной поддержкой
+Переключение режимов симуляции
+• Условия на переходы
+    
+\end{frame}
+
+\begin{frame}{Оптимизации}
+\centering
+\input{./../../simbook/metoda/drawings/bt-optimization}
+
+\end{frame}
+
+\section{Заключение}
+
+\begin{frame}{Итоги}
+\begin{itemize}
+
+\item Наивное прямое исполнение
+
+\item Заплатки и заглушки
+
+\item DEX с аппаратной поддержкой
+
+\item Переключение режимов симуляции
+
+\item Условия на переходы
+
+\end{itemize}
+\end{frame}
+
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{simbook} Программное моделирование вычислительных систем (лекции). \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-lectures-latest.pdf}
+    \bibitem{vms} F. Leung, G. Neiger, D. Rodgers, A. Santoni, R. Uhlig. Intel®
+    Virtualization Technology // Intel Technology Journal No10 (03
+Aug 2006).
+http://www.intel.com/technology/itj/2006/v10i3/
 
-    \bibitem{practicum} Лабораторный практикум по программному моделированию.  \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-practicum-latest.pdf}
+
+Matias Zabaljauregui. Hardware Assisted Virtualization
+Intel Virtualization Technology. 2008.
+http://lib.mipt.ru/book/283035/
+
 
 \end{thebibliography}
 \end{frame}
 
 
-\section{Конец}
+\begin{frame}{На следующей лекции}
+\centering
+
+Симуляция периферийных устройств и полной платформы
+
+\end{frame}
+
 % The final "thank you" frame
 \begin{frame}
 
@@ -130,11 +272,9 @@
 
 \vfill
 
-\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная точка зрения отражает личное мнение автора.
-%Материалы доступны по лицензии Creative Commons Attribution-ShareAlike (Атрибуция — С сохранением условий) 4.0 весь мир (в т.ч. Россия и др.). Чтобы ознакомиться с экземпляром этой лицензии, посетите \url{http://creativecommons.org/licenses/by-sa/4.0/}
-}
+\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная здесь точка зрения отражает личное мнение автора, не выступающего от лица какой-либо организации.}
 
 \end{frame}
 
-
 \end{document}
+
