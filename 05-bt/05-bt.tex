@@ -81,9 +81,10 @@
 
 \begin{frame}{Вопросы}
 \begin{itemize}
-\item Определите термин «декодирование» \pause
+% \item Определите термин «декодирование» \pause
 \item Сколько бит в машинном слове? \pause
-\item Что лучше — MMIO или PIO?
+\item Что лучше — MMIO или PIO?\pause
+\item Может ли архитектура быть и не little, и не big-endian?
 \end{itemize}
 
 \end{frame}
@@ -122,7 +123,7 @@
 \begin{itemize}
 \item Входной язык — гостевой машинный код
 \item Целевой язык — хозяйский машинный код
-\item ДТ — перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA.
+\item ДТ — перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA
 \item Ради чего: многократное исполнение результатов трансляции
 \end{itemize}
 \end{frame}
@@ -229,27 +230,27 @@ execute(start_buf) {
 
 \begin{frame}{Подстановка аргументов в капсулу}
 
-
 {\ttfamily\small
-\begin{tabular}{ll}
-    
+{\sffamily Регистры:}
+
+\begin{tabular}{ll}  
 c5 f4 58 c\textcolor{red}{8}  &    vaddps \textcolor{red}{\%ymm0},\%ymm1,\%ymm1 \\
 c5 f4 58 c\textcolor{red}{9}  &    vaddps \textcolor{red}{\%ymm1},\%ymm1,\%ymm1 \\
-c5 f4 58 c\textcolor{red}{f}  &    vaddps \textcolor{red}{\%ymm7},\%ymm1,\%ymm1 \\
+c5 f4 58 c\textcolor{red}{f}  &    vaddps \textcolor{red}{\%ymm7},\%ymm1,\%ymm1 \\\pause
 c4 c1 74 58 c\textcolor{red}{8} &  vaddps \textcolor{red}{\%ymm8},\%ymm1,\%ymm1 \\
 c4 c1 74 58 c\textcolor{red}{f} &  vaddps \textcolor{red}{\%ymm15},\%ymm1,\%ymm1 \\
 c5 f4 58 c8  &    vaddps \%ymm0,\%ymm1,\%ymm1 \\
 c5 ec 58 d0  &    vaddps \%ymm0,\%ymm2,\%ymm2 \\
-c5 c4 58 f8  &    vaddps \%ymm0,\%ymm3,\%ymm3 \\
-c5 3c 58 c0  &    vaddps \%ymm0,\%ymm8,\%ymm8 \\
-
+c5 c4 58 f8  &    vaddps \%ymm0,\%ymm3,\%ymm3 \\\pause
+c4 e1 74 58 c8 &  vaddps \%ymm0,\%ymm1,\%ymm1 \# Мнемоника та же!\\
 \end{tabular}
 
+\pause
+{\sffamily Литералы:}
 \begin{tabular}{ll}
 67 c7 85 \textcolor{blue}{00 01 00 00} \textcolor{green}{dd cc bb aa}   & movl \textcolor{green}{\$0xaabbccdd},\textcolor{blue}{0x100}(\%ebp)
 \end{tabular}
 } % \ttfamily
-
 
 \end{frame}
 
@@ -298,7 +299,7 @@ c5 3c 58 c0  &    vaddps \%ymm0,\%ymm8,\%ymm8 \\
 
 \end{frame}
 
-\begin{frame}{Блоки трансляции}
+\begin{frame}{Связь между блоками трансляции}
 \centering
 \input{./../../simbook/metoda/drawings/bb-translation}
 \end{frame}
@@ -468,8 +469,9 @@ c5 3c 58 c0  &    vaddps \%ymm0,\%ymm8,\%ymm8 \\
 \begin{frame}{Итоги}
 \begin{itemize}
 \item Интерпретация, компиляция, трансляция
-\item Двоичная трансляция. Статическая и динамическая трансляция
-\item Капсула
+\item Двоичная трансляция
+\item Статическая и динамическая трансляция
+\item Шаблон, капсула
 \item Промежуточное представление
 \item Самомодифицирующийся код
 \item Обнаружение кода
@@ -480,9 +482,14 @@ c5 3c 58 c0  &    vaddps \%ymm0,\%ymm8,\%ymm8 \\
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{vms} Jim Smith, Ravi Nair. Virtual Machines: Versatile Platforms for Systems and Processes. 2005
+    \bibitem{vms} Jim Smith and Ravi Nair. Virtual Machines: Versatile Platforms for Systems and Processes. Morgan Kaufmann - 2005
+    \begin{center}
+    \includegraphics[height=0.5\textheight]{./vm-book}
+    \end{center}
+    
     \bibitem{qemu} Fabrice Bellard. QEMU, a Fast and Portable Dynamic Translator \url{http://www.usenix.org/publications/library/proceedings/usenix05/tech/freenix/full_papers/bellard/bellard.pdf}
     \bibitem{fx32} Anton Chernoff and Ray Hookway. {DIGITAL FX!32} Running 32-Bit x86 Applications on {Alpha} {NT} \url{http://www.usenix.org/publications/library/proceedings/usenix-nt97/full_papers/chernoff/chernoff.pdf}
+    \bibitem{ia32el} Leonid Baraz [et al.] IA-32 Execution Layer: a Two-Phase Dynamic Translator Designed to Support IA-32 Applications on Itanium®-Based Systems. \url{http://www.microarch.org/micro36/html/pdf/goldenberg-IA32ExecutionLayer.pdf}
 \end{thebibliography}
 \end{frame}
 
