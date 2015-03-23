@@ -123,7 +123,7 @@
 \begin{itemize}
 \item Входной язык — гостевой машинный код
 \item Целевой язык — хозяйский машинный код
-\item ДТ — перевод года гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA
+\item ДТ — перевод кода гостевой программы, записанной в гостевой ISA, в эквивалентный код в терминах хозяйской ISA
 \item Ради чего: многократное исполнение результатов трансляции
 \end{itemize}
 \end{frame}
@@ -181,9 +181,9 @@ translate(start_addr, start_buf) {
     while (!enough) {
         instr = fetch(PC);
         (opcode, operands) = decode(instr);
-        (capsule, length) = capsules[opcode];
-        memcpy(bufptr, capsule, length);
-        patch(bufptr, operands);
+        (template, length) = templates[opcode];
+        memcpy(bufptr, template, length);
+        patch_operands(bufptr, operands);
         PC += instr_length;
         bufptr += length;
     }
