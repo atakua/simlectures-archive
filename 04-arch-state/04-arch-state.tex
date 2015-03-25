@@ -245,7 +245,7 @@ void *mmap(void *addr,
 \section{Регистры, поля, банки}
 
 \begin{frame}[fragile]{Два способа взаимодействия с регистрами устройств}
-PIO — programmable I/O, выделенные инструкции для общения с периферией
+PIO — programmable I/O, выделенные инструкции для общения с периферией (IA-32, IBM s390, PDP-8)
 
 \begin{verbatim}
 IN EAX, DX
@@ -253,7 +253,7 @@ OUT DX, EAX
 \end{verbatim}
 \pause
 
-MMIO — memory mapped I/O, унифицированный подход к доступу к ОЗУ и устройствам
+MMIO — memory mapped I/O, унифицированный подход к доступу к ОЗУ и устройствам (IA-32, ARM, PDP-11)
 
 \begin{verbatim}
 MOV [mem], reg
