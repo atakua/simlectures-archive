@@ -28,8 +28,9 @@
 
 % Vector drawings
 \usepackage{tikz}
-\usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
-\usepackage[siunitx]{circuitikz}
+% \usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
+\usetikzlibrary{shapes, calc, arrows, decorations.markings, decorations.pathreplacing, decorations.pathmorphing, decorations, patterns, chains, snakes, backgrounds, positioning, fit, shadows}
+% \usepackage[siunitx]{circuitikz}
 
 % Be able to insert hyperlinks
 \usepackage{hyperref}
@@ -47,12 +48,12 @@
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
-\author[Григорий Речистов]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
+\author[]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
 \date{\today}
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
 
-\typeout{Copyright 2014 Grigory Rechistov}
+\typeout{Copyright 2015 Grigory Rechistov}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
@@ -66,6 +67,23 @@
 \begin{frame}
     \tableofcontents
 \end{frame}
+
+\begin{frame}{На прошлой лекции}
+\begin{itemize}
+    \item Модели ЦПУ — это интересно
+    \item Но что делать, когда требуется модель более полной системы?
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item В каких случаях можно использовать прямое исполнение для симуляции?\pause
+\item Почему наивная схема не будет работать?\pause
+\item Для чего ещё можно использовать механизм установки заглушек в целевом коде?
+\end{itemize}
+
+\end{frame}
+
 
 \section{Таймер}
 
@@ -211,6 +229,8 @@ foreach e in event_queue {
 }
 \end{verbatim}
 
+Схема будет работать правильно для нескольких устройств сразу!
+
 \end{frame}
 
 \section{Отложенный ответ}
@@ -251,7 +271,7 @@ foreach e in event_queue {
 \end{enumerate}
 \texttt{dev1:}
 \begin{enumerate}
-    \item rdy(): чтение data.
+    \item rdy(): чтение data
 \end{enumerate}
 
 \end{frame}
@@ -301,16 +321,14 @@ foreach e in event_queue {
 
 \end{frame}
 
-\begin{frame}{Вопросы}
+\begin{frame}{Вопросы к модели}
 Что будет происходить с очередью событий при
 \begin{enumerate}
-    \item записи в \texttt{reference} или \#RESET?
-    \item выключении таймера (ENABLE ← 0)?
+    \item выключении таймера (ENABLE ← 0)?\pause{} Удаление неслучившихся событий из очереди
+    \item записи в \texttt{reference} или \#RESET?\pause{} Пересоздание событий в очереди
     \item чтении регистра \texttt{counter}?
 \end{enumerate}
-
 \end{frame}
-
 
 \begin{frame}[fragile]{Алгоритм DES}
 
@@ -330,16 +348,15 @@ while (! empty(queue)) {
 
 \end{frame}
 
-% \begin{frame}{Свойства событий}
-% 
-% \begin{itemize}
-% \item Порождаемые события не могут попасть в прошлое.
-% \item Обработка событий может не только порождать события в будущем, но и отменять некоторые из них (ещё не обработанные).
-% \item Несколько событий могут иметь одинаковую метку времени.
-% \end{itemize}
-% 
-% \end{frame}
+\begin{frame}{Свойства событий в модели DES}
 
+\begin{itemize}
+\item Порождаемые события не могут попасть в прошлое
+\item Обработка событий может не только порождать события в будущем, но и отменять некоторые из них (ещё не обработанные)
+\item Несколько событий могут иметь одинаковую метку времени
+\end{itemize}
+
+\end{frame}
 
 \section{Практический пример}
 
@@ -362,24 +379,21 @@ simics> peq
 \end{verbatim}    
 \end{frame}
 
-\begin{frame}{На этой лекции}
-\begin{itemize}
-    \item Совместная работа с моделью процессора.
-    \item Работа с несколькими процессорами сразу.
-\end{itemize}
-\end{frame}
-
 \section{Косимуляция}
 
 \begin{frame}{Какие типы моделей нам известны}
 
 \begin{itemize}
-    \item Интерпретация\pause: процессоры. \pause
-    \item Очередь событий\pause: таймер.\pause
-    \item «Мгновенная» модель «стимул — отклик»\pause: ОЗУ.
+    \item Интерпретация\pause: процессоры \pause
+    \item Очередь событий\pause: таймер\pause
+    \item «Мгновенная» модель «стимул — отклик»\pause: ОЗУ
 \end{itemize}
 
 \end{frame}
+
+% \begin{frame}{Совместная симуляция исполняющей и неисполняющих моделей}
+
+% \end{frame}
 
 \begin{frame}{Модель многопроцессорной системы}
 \begin{tikzpicture}[>=latex]
@@ -394,13 +408,21 @@ simics> peq
 
 \node[draw, fit = (c3) (c4), inner ysep=1pt ] (shmem) {Общая память};
 
-\draw[<->] (core1.south) -- (shmem);
-\draw[<->] (core2.south) -- (shmem);
-\draw[<->] (core3.south) -- (shmem);
-\draw[<->] (core4.south) -- (shmem);
+\draw[<->] (core1) -- (shmem);
+\draw[<->] (core2) -- (shmem);
+\draw[<->] (core3) -- (shmem);
+\draw[<->] (core4) -- (shmem);
 
 \end{tikzpicture}
 
+\end{frame}
+
+\begin{frame}{Step-by-step}
+\begin{itemize}
+\item Как выдержать одновременность симуляции инструкций на всех гостевых процессорах? Исполнять не более одной инструкции за раз\pause
+\item Но это будет очень медленно! Может быть, возможно исполнять несколько гостевых инструкций без переключения?\pause
+\item А каково приблизительное время доставки сигналов от одного процессора до другого в реальности?
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Квотированная симуляция}
@@ -446,14 +468,12 @@ simics> peq
 
 \begin{frame}{Размер квоты}
 \begin{itemize}
-\item  Процессор может исполнить меньше инструкций, чем содержится в выданной ему квоте.
-\item Не следует увлекаться излишне большими квотами, пытаясь ускорить исполнение.
-\item В DES-модели могут быть реализованы псевдо-события, обработка которых вызывает переключение текущего процессора.
+\item Процессор может исполнить меньше инструкций, чем содержится в выданной ему квоте
+\item Не следует увлекаться излишне большими квотами, пытаясь ускорить исполнение
+\item В DES-модели могут быть реализованы псевдо-события, обработка которых вызывает переключение текущего процессора
 \end{itemize}
 
 \end{frame}
-
-
 
 \begin{frame}{Совместная симуляция DES и исполняющей модели}
 \centering
@@ -483,8 +503,6 @@ simics> peq
     \draw (11,-0.5) ellipse[x radius = 2cm, y radius = 0.5cm] node {} ;
     \end{scope}
     \end{tikzpicture}
-
-
 \end{frame}
 
 \begin{frame}{Косимуляция}
@@ -548,29 +566,25 @@ viper.mb.cpu0.core[3][1]  4925600000  5134000000     2.567
     
 \end{frame}
 
-
-
 \section{Заключение}
-\begin{frame}{Дополнительные вопросы DES}
+\begin{frame}{Итоги}
 \begin{itemize}
-    \item Совместная работа с моделью процессора.
-    \item Работа с несколькими процессорами сразу.
-    \item Сценарии, когда действительно надо моделировать каждый такт.
+\item Моделирование с фиксированным шагом
+\item Моделирование, управляемое событиями
+\item Создание, обработка и удаление событий
+\item Квотированная симуляция исполняющих моделей
+\item Взаимоделйствие исполняющих и неисполняющих моделей
 \end{itemize}
-\end{frame}
 
-\section{Литература}
+\end{frame}
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{patterson} Паттерсон Д., Хеннесси Дж. Архитектура компьютеров и проектирование компьютерных систем — СПб.: Питер — 2011 — 784~с. — ISBN 978-5-459-00291-1
+    % \bibitem{patterson} Паттерсон Д., Хеннесси Дж. Архитектура компьютеров и проектирование компьютерных систем — СПб.: Питер — 2011 — 784~с. — ISBN 978-5-459-00291-1
     \bibitem{sim-handbook} Handbook of Simulation. Principles, Methodology, Advances, Applications, and Practice / ed. by J. Banks. — John Wiley \& Sons, Inc., 1998. — ISBN 0-471-13403-1. — \url{http://books.google.com/books?id=dMZ1Zj3TBgAC} % http://lib.mipt.ru/book/288185/
 \end{thebibliography}
 \end{frame}
 
-
-\section{Конец}
-% The final "thank you" frame
 \begin{frame}
 
 {\huge{Спасибо за внимание!}\par}
@@ -581,11 +595,8 @@ viper.mb.cpu0.core[3][1]  4925600000  5134000000     2.567
 
 \vfill
 
-\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная точка зрения отражает личное мнение автора.
-Материалы доступны по лицензии Creative Commons Attribution-ShareAlike (Атрибуция — С сохранением условий) 4.0 весь мир (в т.ч. Россия и др.). Чтобы ознакомиться с экземпляром этой лицензии, посетите \url{http://creativecommons.org/licenses/by-sa/4.0/}
-}
+\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная здесь точка зрения отражает личное мнение автора, не выступающего от лица какой-либо организации.}
 
 \end{frame}
-
 
 \end{document}
