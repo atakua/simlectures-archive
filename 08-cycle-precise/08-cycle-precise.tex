@@ -28,8 +28,9 @@
 
 % Vector drawings
 \usepackage{tikz}
-\usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
-\usepackage[siunitx]{circuitikz}
+% \usetikzlibrary{shapes, calc, arrows, fit, positioning, decorations, patterns, decorations.pathreplacing, chains, snakes}
+\usetikzlibrary{shapes, calc, arrows, decorations.markings, decorations.pathreplacing, decorations.pathmorphing, decorations, patterns, chains, snakes, backgrounds, positioning, fit, shadows}
+% \usepackage[siunitx]{circuitikz}
 
 % Be able to insert hyperlinks
 \usepackage{hyperref}
@@ -43,16 +44,16 @@
 % A new command to mark not done places
 \newcommand{\todo}[1][Напиши меня]{{\color{red}TODO\ #1}}
 
-\title{Роль моделирования в процессе разработки программно-аппаратных платформ}
+\title{Потактовая симуляция}
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
-\author[Григорий Речистов]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
+\author[]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
 \date{\today}
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
 
-\typeout{Copyright 2014 Grigory Rechistov}
+\typeout{Copyright 2015 Grigory Rechistov}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
@@ -67,59 +68,155 @@
     \tableofcontents
 \end{frame}
 
-\section{История использования}
+\begin{frame}{На прошлой лекции}
+\begin{itemize}
+    \item Модель, управляемая исполнением (функциональная модель)
+    \item Модель, управляемая событиями (DES)%\pause
+%     \item Модель, измен
+\end{itemize}
+\end{frame}
 
-\begin{frame}{Атомарные инструкции}
-
-\begin{tikzpicture}[>=latex]
-
-\node[draw, circle] (core1) {Ядро 1};
-
-\node[draw, circle, right = of core1] (core2) {Ядро 2};
-
-\node[draw, circle, right = of core2] (core3) {Ядро 3};
-
-\node[draw, circle, right = of core3] (core4) {Ядро 4};
-
-\node[below = 2cm of core1] (c1) {};
-\node[below = 2cm of core4] (c2) {};
-
-\node[draw, fit = (c1) (c2) ] (shmem) {Общая память} ;
-
-\path (core2.south) -- (core3.south) node[midway, yshift = -1cm] (lock) {\texttt{LOCK}};
-\draw[thick,] (core2) |- (lock);
-\draw[thick,->] (lock) -- (shmem);
-
-\path (core1.south) |- (lock) coordinate[midway] (block1); %{X};
-\path (core3.south) |- (lock) coordinate[midway] (block3); %{X};
-\path (core4.south) |- (lock) coordinate[midway] (block4); %{X};
-
-\draw[->] (core1.south) -- (block1);
-\draw[->] (core3.south) -- (block3);
-\draw[->] (core4.south) -- (block4);
-
-\draw[dashed] (block1) -- (lock);
-\draw[dashed] (lock)   -- (block3);
-\draw[dashed] (block3) -- (block4);
-
-\end{tikzpicture}
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item Можно ли симулировать процессор через события?\pause
+\item В чём опасности излише большоей квоты симуляции многопроцессорной системы?\pause
+\item Можно ли иметь две очереди событий в одной симуляции?
+\end{itemize}
 
 \end{frame}
 
-\section{Литература}
+\section{Что моделируем}
+
+\begin{frame}{Диаграмма моделируемой системы}
+\centering
+
+\includegraphics[width=\textwidth]{./mips-arch}
+
+\tiny{\url{http://commons.wikimedia.org/wiki/File:MIPS_Architecture_(Pipelined).svg}}
+\end{frame}
+
+\begin{frame}{Проблемы}
+\begin{itemize}
+    \item Функциональная модель — не работает (слишком грубая)
+    \item DES — применима, но неудобная абстракция
+\end{itemize}
+
+\input{../../simbook/metoda/drawings/des-long}
+
+\end{frame}
+
+\begin{frame}{Особенности}
+
+\input{../../simbook/metoda/drawings/features}
+\end{frame}
+
+\begin{frame}{Проблемы}
+
+Длительность одной операции у разных узлов
+могут быть различными
+
+ Как проверять готовность «медленных» узлов?
+Результаты обработки данных должны появляться
+не ранее, чем на такте, следующим за текущим
+
+ Нельзя в произвольном порядке обновлять состояние
+блоков
+
+\end{frame}
+
+\section{Порты}
+
+\begin{frame}{Решение}
+Абстрагируемся
+Отделим:
+●
+ Функции узлов
+●
+ Время, затрачиваемое на их выполнение
+●
+ Внутреннее состояние узлов
+ы
+\end{frame}
+
+
+\begin{frame}{Функциональный элемент}
+
+Результат готов «мгновенно» при наличии
+входных данных
+
+\end{frame}
+
+\begin{frame}{Порт}
+Порт
+Очередь фиксированной задержки
+Ширина N бит, задержка 1 такт
+
+\end{frame}
+
+\begin{frame}{Правило соединения}
+
+Функции не могут соединяться непосредственно друг с другом
+
+
+\end{frame}
+
+\begin{frame}{Модель с портами}
+
+\end{frame}
+
+\section{Детали}
+
+\begin{frame}{Готовность данных}
+
+\end{frame}
+
+\begin{frame}{Стадии}
+
+
+ симуляция функций
+
+ симуляция передачи результатов
+
+\end{frame}
+
+\begin{frame}{Шаг 1, шаг 2}
+
+\end{frame}
+
+
+\begin{frame}{Могут ли функциональные элементы иметь память?}
+
+\end{frame}
+
+\begin{frame}{Связь функциональной и потактовой моделей}
+
+\end{frame}
+
+% \begin{frame}{Диаграмма моделируемой системы}
+% 
+% \end{frame}
+
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
-    \bibitem{simbook} Программное моделирование вычислительных систем (лекции). \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-lectures-latest.pdf}
+    \bibitem{patterson-hennessy} Дэвид Паттерсон и Джон Хэннесси. Архитектура компьютера и проектирование компьютерных
+систем. 4-е изд. Питер, 2012.
 
-    \bibitem{practicum} Лабораторный практикум по программному моделированию.  \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-practicum-latest.pdf}
+\bibitem{Asim} Joel Emer, Pritpal Ahuja, Eric Borch, Artur Klauser, Chi-Keung Luk, Srilatha Manne, Shubhendu S. Mukherjee,
+Harish Patil, Steven Wallace, Nathan Binkert, Roger Espasa, Toni Juan. Asim: A Performance Model Framework // Computer 35 (2002), p. 68–76.
 
+\bibitem{baida} Ю.В. Байда. Методы разработки и тестирования аппаратных потактовых моделей микропроцессоров на программируемых логических интегральных схемах. Дисс. к.т.н. — 2013
 \end{thebibliography}
 \end{frame}
 
+\begin{frame}{На следующей лекции}
+\centering
 
-\section{Конец}
-% The final "thank you" frame
+Параллельная симуляция, управляемая исполнением (MPonMP)
+
+\end{frame}
+
+
 \begin{frame}
 
 {\huge{Спасибо за внимание!}\par}
@@ -130,11 +227,8 @@
 
 \vfill
 
-\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная точка зрения отражает личное мнение автора.
-%Материалы доступны по лицензии Creative Commons Attribution-ShareAlike (Атрибуция — С сохранением условий) 4.0 весь мир (в т.ч. Россия и др.). Чтобы ознакомиться с экземпляром этой лицензии, посетите \url{http://creativecommons.org/licenses/by-sa/4.0/}
-}
+\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная здесь точка зрения отражает личное мнение автора, не выступающего от лица какой-либо организации.}
 
 \end{frame}
-
 
 \end{document}
