@@ -84,6 +84,46 @@
 
 \end{frame}
 
+\begin{frame}{Платформа}
+\centering
+
+\begin{tikzpicture}[>=latex, font=\small, node distance = 0.5cm]
+
+\begin{scope}[minimum height=0.8cm]
+    \node[draw, ] (cpu) {CPU1};
+    \node[draw, below=of cpu] (mmu) {MMU1};
+    
+    \node[draw, left=of cpu] (cpu2) {CPU2};
+    \node[draw, below=of cpu2] (mmu2) {MMU2};
+    \node[draw, right=2cm of cpu, ] (pic) {APIC};
+    
+    \coordinate[above=of pic] (op);
+    \coordinate (mp) at (barycentric cs:mmu=0.5,mmu2=0.5);
+    \node[draw, below=1cm of mp] (addr-decoder) {addr-decoder};
+    
+    \node[draw, below=2cm of mmu, text width=4.5cm, align = center, ] (dram) {RAM};
+    \node[draw, right=of pic, ] (pit) {PIT};
+
+\end{scope}
+
+\draw[<->] (cpu) -- (cpu |- mmu.north);
+\draw[<->] (cpu2) -- (cpu2 |- mmu2.north);
+
+\draw[<->] (mmu) -- (mmu |- addr-decoder.north);
+\draw[<->] (mmu2) -- (mmu2 |- addr-decoder.north);
+
+\draw[<->] (addr-decoder) -| (pit);
+\draw[<->] (addr-decoder) -- (addr-decoder |- dram.north);
+
+
+\draw[->, ] (pic) -- (cpu);
+\draw[->, ] (pit) -- (pic);
+\draw[->, ] (pic) -- (op) -| (cpu2);
+
+\end{tikzpicture}
+
+\end{frame}
+
 
 \section{Таймер}
 
@@ -269,7 +309,7 @@ foreach e in event_queue {
     \item data = get_data(address)
     \item event_queue.post($\Delta T$, dev1, rdy())
 \end{enumerate}
-\texttt{dev1:}
+\texttt{dev1:}p
 \begin{enumerate}
     \item rdy(): чтение data
 \end{enumerate}
