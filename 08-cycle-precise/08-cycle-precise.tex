@@ -71,8 +71,8 @@
 \begin{frame}{На прошлой лекции}
 \begin{itemize}
     \item Модель, управляемая исполнением (функциональная модель)
-    \item Модель, управляемая событиями (DES)%\pause
-%     \item Модель, измен
+    \item Модель, управляемая событиями (DES)\pause
+    \item \textbf{Модель, изменяющаяся на каждом такте} (time-stepped)
 \end{itemize}
 \end{frame}
 
@@ -111,45 +111,43 @@
 \end{frame}
 
 \begin{frame}{Проблемы}
-
-Длительность одной операции у разных узлов
-могут быть различными
-
- Как проверять готовность «медленных» узлов?
-Результаты обработки данных должны появляться
-не ранее, чем на такте, следующим за текущим
-
- Нельзя в произвольном порядке обновлять состояние
-блоков
+\begin{itemize}
+\item Длительность одной операции у разных узлов могут быть различными
+\item Как проверять готовность «медленных» узлов?
+\item Результаты обработки данных должны появляться не ранее, чем на такте, следующим за текущим
+% \item Нельзя в произвольном порядке обновлять состояние блоков
+\end{itemize}
 
 \end{frame}
 
 \section{Порты}
 
 \begin{frame}{Решение}
-Абстрагируемся
 Отделим:
-●
- Функции узлов
-●
- Время, затрачиваемое на их выполнение
-●
- Внутреннее состояние узлов
-ы
+    \begin{itemize}
+    \item Функции узлов
+    \item Время, затрачиваемое на их выполнение
+    \item Внутреннее состояние узлов
+    \end{itemize}
 \end{frame}
 
-
 \begin{frame}{Функциональный элемент}
+Результат готов «мгновенно» при наличии входных данных
 
-Результат готов «мгновенно» при наличии
-входных данных
+\vfill
+\centering
+\input{../../simbook/metoda/drawings/pure-function}
 
 \end{frame}
 
 \begin{frame}{Порт}
-Порт
 Очередь фиксированной задержки
-Ширина N бит, задержка 1 такт
+
+Ширина $N$ бит, задержка 1 такт
+
+\vfill
+\centering
+\input{../../simbook/metoda/drawings/delay-line}
 
 \end{frame}
 
@@ -162,11 +160,25 @@
 
 \begin{frame}{Модель с портами}
 
+\centering
+\input{../../simbook/metoda/drawings/cycle-phase1}
+
 \end{frame}
+
+\begin{frame}{Модель с портами}
+
+\centering
+\input{../../simbook/metoda/drawings/cycle-phase2}
+
+\end{frame}
+
 
 \section{Детали}
 
 \begin{frame}{Готовность данных}
+
+\centering
+\input{../../simbook/metoda/drawings/valid}
 
 \end{frame}
 
@@ -181,14 +193,29 @@
 
 \begin{frame}{Шаг 1, шаг 2}
 
+\todo
+
+
 \end{frame}
 
 
 \begin{frame}{Могут ли функциональные элементы иметь память?}
 
+\centering
+\input{../../simbook/metoda/drawings/state-storing}
+
+\end{frame}
+
+\begin{frame}{Композиция узлов}
+
+\centering
+\input{../../simbook/metoda/drawings/ports-compose}
+
 \end{frame}
 
 \begin{frame}{Связь функциональной и потактовой моделей}
+
+\todo
 
 \end{frame}
 
