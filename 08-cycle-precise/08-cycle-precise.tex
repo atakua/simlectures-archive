@@ -72,14 +72,14 @@
 \begin{itemize}
     \item Модель, управляемая исполнением (функциональная модель)
     \item Модель, управляемая событиями (DES)\pause
-    \item \textbf{Модель, изменяющаяся на каждом такте} (time-stepped)
+    \item \textbf{Модель, моделирующая каждый такт} (time-stepped)
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Вопросы}
 \begin{itemize}
 \item Можно ли симулировать процессор через события?\pause
-\item В чём опасности излише большоей квоты симуляции многопроцессорной системы?\pause
+\item В чём опасности излишне большоей квоты симуляции многопроцессорной системы?\pause
 \item Можно ли иметь две очереди событий в одной симуляции?
 \end{itemize}
 
@@ -87,7 +87,7 @@
 
 \section{Что моделируем}
 
-\begin{frame}{Диаграмма моделируемой системы}
+\begin{frame}{Что моделируем}
 \centering
 
 \includegraphics[width=\textwidth]{./mips-arch}
@@ -153,19 +153,24 @@
 
 \begin{frame}{Правило соединения}
 
-Функции не могут соединяться непосредственно друг с другом
-
-
+\begin{itemize}
+\item Функции не могут соединяться непосредственно друг с другом
+\item Чередующиеся фазы симуляции:
+\begin{enumerate}
+    \item симуляция функций;
+    \item симуляция передачи результатов
+\end{enumerate}
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Модель с портами}
+\begin{frame}{Модель с портами: фаза 1}
 
 \centering
 \input{../../simbook/metoda/drawings/cycle-phase1}
 
 \end{frame}
 
-\begin{frame}{Модель с портами}
+\begin{frame}{Модель с портами: фаза 2}
 
 \centering
 \input{../../simbook/metoda/drawings/cycle-phase2}
@@ -181,23 +186,6 @@
 \input{../../simbook/metoda/drawings/valid}
 
 \end{frame}
-
-\begin{frame}{Стадии}
-
-
- симуляция функций
-
- симуляция передачи результатов
-
-\end{frame}
-
-\begin{frame}{Шаг 1, шаг 2}
-
-\todo
-
-
-\end{frame}
-
 
 \begin{frame}{Могут ли функциональные элементы иметь память?}
 
@@ -215,7 +203,7 @@
 
 \begin{frame}{Связь функциональной и потактовой моделей}
 
-\todo
+\centering\includegraphics[width=0.8\textwidth]{functional-cycle-precise-connection}
 
 \end{frame}
 
