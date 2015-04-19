@@ -43,16 +43,16 @@
 % A new command to mark not done places
 \newcommand{\todo}[1][Напиши меня]{{\color{red}TODO\ #1}}
 
-\title{Роль моделирования в процессе разработки программно-аппаратных платформ}
+\title{Современная виртуализация}
 \subtitle{Курс «Программное моделирование вычислительных систем»}
 \subject{Курс «Программное моделирование вычислительных систем»}
 
-\author[Григорий Речистов]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
+\author[]{Григорий Речистов \\ \small{\href{mailto:grigory.rechistov@phystech.edu}{grigory.rechistov@phystech.edu}}}
 \date{\today}
 \pgfdeclareimage[height=0.5cm]{ilab-logo}{../ilab-noletters.png}
 \logo{\pgfuseimage{ilab-logo}}
 
-\typeout{Copyright 2014 Grigory Rechistov}
+\typeout{Copyright 2015 Grigory Rechistov}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
@@ -60,66 +60,201 @@
 \begin{document}
 
 \begin{frame}
-    \maketitle
+\titlepage
 \end{frame}
 
 \begin{frame}
-    \tableofcontents
+\tableofcontents
 \end{frame}
 
-\section{История использования}
+\section{Обзор}
 
-\begin{frame}{Атомарные инструкции}
-
-\begin{tikzpicture}[>=latex]
-
-\node[draw, circle] (core1) {Ядро 1};
-
-\node[draw, circle, right = of core1] (core2) {Ядро 2};
-
-\node[draw, circle, right = of core2] (core3) {Ядро 3};
-
-\node[draw, circle, right = of core3] (core4) {Ядро 4};
-
-\node[below = 2cm of core1] (c1) {};
-\node[below = 2cm of core4] (c2) {};
-
-\node[draw, fit = (c1) (c2) ] (shmem) {Общая память} ;
-
-\path (core2.south) -- (core3.south) node[midway, yshift = -1cm] (lock) {\texttt{LOCK}};
-\draw[thick,] (core2) |- (lock);
-\draw[thick,->] (lock) -- (shmem);
-
-\path (core1.south) |- (lock) coordinate[midway] (block1); %{X};
-\path (core3.south) |- (lock) coordinate[midway] (block3); %{X};
-\path (core4.south) |- (lock) coordinate[midway] (block4); %{X};
-
-\draw[->] (core1.south) -- (block1);
-\draw[->] (core3.south) -- (block3);
-\draw[->] (core4.south) -- (block4);
-
-\draw[dashed] (block1) -- (lock);
-\draw[dashed] (lock)   -- (block3);
-\draw[dashed] (block3) -- (block4);
-
-\end{tikzpicture}
+\begin{frame}{На прошлых лекциях}
+\begin{itemize}
+\item 
+\item 
+\end{itemize}
 
 \end{frame}
 
-\section{Литература}
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item ?\pause
+\item ?\pause
+\item Time Warp?
+\end{itemize}
 
-\begin{frame}[allowframebreaks]{Литература}
+\end{frame}
+
+\begin{frame}{Связь виртуализации и симуляции}
+
+\end{frame}
+
+\begin{frame}{}
+•IBM System/360 – 1960 гг.
+
+\end{frame}
+
+\section{Классические условия}
+
+\begin{frame}{Необходимые свойства}
+
+•Изоляция — каждая виртуальная машина должна иметь
+доступ только к тем ресурсам, которые были ей
+назначены.
+•Эквивалентность — любая программа, исполняемая под
+управлением ВМ, должна демонстрировать поведение,
+полностью идентичное реальной системе, за исключением
+эффектов,
+•Эффективность — «статистически преобладающее
+подмножество инструкций виртуального процессора
+должно исполняться напрямую хозяйским процессором,
+без вмешательства монитора ВМ»
+
+\end{frame}
+
+\begin{frame}{Модель}
+
+Один процессор, исполняющий
+инструкции
+• Состояние: (M, P, R)
+• Два режима M: u и s
+• Указатель текущей инструкции P
+• Границы сегмента памяти R (l,b)
+Оперативная память
+• Линейная E с ячейками E[n]
+
+\end{frame}
+
+\begin{frame}{}
+События ловушки (trap)
+•Вызванные попыткой изменить состояние
+процессора (потока управления)
+•Вызванные механизмом защиты памяти
+(ловушка з.п.)
+•E[0] ← (M1,P1,R1)
+•(M2,P2,R2) ← E[1]
+
+\end{frame}
+
+\begin{frame}{}
+Инструкции
+•Привилегированные (privileged). Исполнение с
+M=u всегда вызывает ловушку потока
+управления.
+•Служебные (sensitive)
+• Инструкции, исполнение которых
+закончилось без ловушки защиты памяти и
+вызвало изменение M и/или R.
+• Инструкции, поведение которых в случаях,
+когда они не вызывают ловушку защиты
+памяти, зависит или от режима M, или от
+значения R.
+•Безвредные — не служебные
+Лаборатория суперкомпьютерных технологий для биомедицины, фармакологии и
+\end{frame}
+
+\begin{frame}[shrink=20]{Достаточное условие}
+
+Множество служебных инструкций является
+подмножеством привилегированных инструкций
+
+\centering
+\input{../../simbook/metoda/drawings/vm-sufficient-condition} 
+\end{frame}
+
+\begin{frame}{}
+Почему это так
+•Программы исполняют безобидные инструкции напрямую
+•Служебные инструкции вызывают ловушку → переход в
+монитор, который их эмулирует
+•Привилегированные инструкции (ОС в ВМ) → ловушка
+•Изоляция
+•Эквивалентность
+•Эффективность
+
+\end{frame}
+
+\section{Современные корректировки}
+
+\begin{frame}{}
+Что не упомянуто в условии Г. и П.
+•Сложные схемы трансляции адресов
+•Периферия
+•Многопроцессорные системы
+
+\end{frame}
+
+\begin{frame}{Трансляция адресов}
+\centering
+\input{../../simbook/metoda/drawings/two-level-translation} 
+\end{frame}
+
+\begin{frame}{TLB}
+
+\end{frame}
+
+\begin{frame}{Периферийные устройства}
+•Кому доставлять
+прерывание?
+•Что делать, если
+прерывания внутри ВМ
+запрещены?
+
+\end{frame}
+
+\begin{frame}{Консервативный подход}
+•Все прерывания доставляется
+монитору
+•Монитор «впрыскивает» их в ВМ
+•Повышенная латентность
+доставки прерываний
+
+\end{frame}
+
+\begin{frame}{Аппаратная поддержка}
+•Аппаратура поддерживает
+выборочную доставку
+прерываний напрямую в ВМ
+
+\end{frame}
+
+
+\begin{frame}{Многопроцессорность}
+
+•Планировка исполнения N виртуальных процессоров на M
+физических, $N \geqslant M$
+• Справедливая (fairness)
+• Эффективная — характерные длительности
+синхронизационных процессов внутри ВМ должны
+быть близки к наблюдаемым на реальной аппаратуре
+•Проблема вытеснения потоков, заблокировавших ресурсы
+(lock holder preemption)
+• Монитору необходимо детектировать новый класс
+гостевых инструкций — синхронизационные
+примитивы (атомарные)
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{Рекомендуемая литература}
 \begin{thebibliography}{99}
-    \bibitem{simbook} Программное моделирование вычислительных систем (лекции). \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-lectures-latest.pdf}
+\bibitem{vtx} Intel VT-x
+\bibitem{mpr} Harlan McGhan. The gHost in the Machine: Parts 1,2,3 // Microprocessor Report. 2007. \url{http://mpronline.com}
+\bibitem{goldberg} Popek Gerald J., Goldberg Robert P. Formal requirements for virtualizable third generation
+architectures // Communications of the ACM. V. 17. \#7. 1974.
 
-    \bibitem{practicum} Лабораторный практикум по программному моделированию.  \url{http://atakua.doesntexist.org/public/archive/simcourse/simulation-practicum-latest.pdf}
 
 \end{thebibliography}
 \end{frame}
 
 
-\section{Конец}
-% The final "thank you" frame
+\begin{frame}{На следующей лекции}
+\centering
+
+\end{frame}
+
+
 \begin{frame}
 
 {\huge{Спасибо за внимание!}\par}
@@ -130,11 +265,8 @@
 
 \vfill
 
-\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная точка зрения отражает личное мнение автора.
-%Материалы доступны по лицензии Creative Commons Attribution-ShareAlike (Атрибуция — С сохранением условий) 4.0 весь мир (в т.ч. Россия и др.). Чтобы ознакомиться с экземпляром этой лицензии, посетите \url{http://creativecommons.org/licenses/by-sa/4.0/}
-}
+\tiny{\textit{Замечание}: все торговые марки и логотипы, использованные в данном материале, являются собственностью их владельцев. Представленная здесь точка зрения отражает личное мнение автора, не выступающего от лица какой-либо организации.}
 
 \end{frame}
-
 
 \end{document}
