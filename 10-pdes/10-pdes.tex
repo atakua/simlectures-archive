@@ -12,6 +12,8 @@
 \usepackage{csquotes}
 \usepackage{standalone}
 
+\usepackage{mdwlist} % compact itemize lists environment
+
 % Setup fonts
 \newfontfamily\russianfont{CMU Serif}
 \setromanfont{CMU Serif}
@@ -69,245 +71,326 @@
 
 \section{Обзор}
 
-\begin{frame}{На прошлой лекции}
+\begin{frame}{На прошлых лекциях}
 \begin{itemize}
-\item Оптимистичные схемы
-\item Откат состояния 
-\item Time Warp и virtual time \pause
-\item Вопрос: как выполнять вывод (\texttt{printf}) в оптимистичной симуляции?
+\item Моделирование многих агентов, работающих асинхронно — DES в один поток
+\item Параллельное моделирование исполняющих устройств — процессоров
 \end{itemize}
 
 \end{frame}
+
+\begin{frame}{Вопросы}
+\begin{itemize}
+\item Что такое атомарная инструкция?\pause
+\item Что такое инструкция-барьер?\pause
+\item Верно ли, что любая атомарная инструкция является барьером?
+\end{itemize}
+
+\end{frame}
+
 
 \begin{frame}{Общая схема моделируемой системы}
 
 \centering
-
-\input{../../simbook/metoda/drawings/parsim-overview}
-    
-\end{frame}
-
-% \begin{frame}{Препятствия}
-% \begin{enumerate}
-% \item    Возможность гонок данных (data race)
-% \item    Возможность взаимоблокировок 
-% \item    Неэффективная работа параллельного приложения 
-% \item    Недетерминистичность
-% \end{enumerate}
-% \end{frame}
-
-\section{Атомарные инструкции}
-
-\begin{frame}{Атомарные инструкции}
-
-\begin{tikzpicture}[>=latex]
-
-\node[draw, circle] (core1) {Ядро 1};
-
-\node[draw, circle, right = of core1] (core2) {Ядро 2};
-
-\node[draw, circle, right = of core2] (core3) {Ядро 3};
-
-\node[draw, circle, right = of core3] (core4) {Ядро 4};
-
-\node[below = 2cm of core1] (c1) {};
-\node[below = 2cm of core4] (c2) {};
-
-\node[draw, fit = (c1) (c2) ] (shmem) {Общая память} ;
-
-\path (core2.south) -- (core3.south) node[midway, yshift = -1cm] (lock) {\texttt{LOCK}};
-\draw[thick,] (core2) |- (lock);
-\draw[thick,->] (lock) -- (shmem);
-
-\path (core1.south) |- (lock) coordinate[midway] (block1); %{X};
-\path (core3.south) |- (lock) coordinate[midway] (block3); %{X};
-\path (core4.south) |- (lock) coordinate[midway] (block4); %{X};
-
-\draw[->] (core1.south) -- (block1);
-\draw[->] (core3.south) -- (block3);
-\draw[->] (core4.south) -- (block4);
-
-\draw[dashed] (block1) -- (lock);
-\draw[dashed] (lock)   -- (block3);
-\draw[dashed] (block3) -- (block4);
-
+\begin{tikzpicture}[font=\small]
+    \node {TODO: a mess};
 \end{tikzpicture}
 
-\begin{itemize}
-    \item {Read--Modify--Write} для ячейки в памяти
-    \item Средства реализации семафоров
-    \item «Дорогие» для исполнения \pause
-    \item {Вопрос}: нужны ли атомарные инструкции для однопроцессорных систем?
-\end{itemize}
-
 \end{frame}
 
-\begin{frame}{Симуляция инструкций}
+\section{Идея PDES}
 
-\begin{enumerate}
-    \item Использование хозяйских инструкций
-    \item Использование критических секций
-    \item Использование транзакций
-\end{enumerate}
-\end{frame}
+\begin{frame}{DES}
 
-\begin{frame}{Использование хозяйских инструкций}
-\begin{itemize}
-    \item Разные ISA для атомарных инструкций (напр. IA-32 --- больше 10 инструкций, ARM --- две)
-    \item Не все атомарные операции одинаково \emph{сильны} (consensus number)~\cite{consensus-number}
-    \begin{itemize}
-        \item $\infty$ --- Mem-Mem, CAS, LL/SC
-        \item 2 --- TAS, SWAP, FAA
-        \item 1 --- атомарное чтение и запись
-    \end{itemize}
-    \item Метод наиболее удобен в случаях совпадения архитектур хозяина и гостя
-\end{itemize}
-\end{frame}
+\begin{tikzpicture}[>=latex, font=\scriptsize]
+    \draw[->] (0,0) -- (10,0) node[pos=0.9, below] (sim-time) {Время};
 
-\begin{frame}{Использование критических секций}
-\begin{itemize}
-    \item Хозяйская критическая секция для моделирования одной атомарной операции \pause \dots{} но это не работает
-    \item Пример~\cite{coremu}: взятие семафора с помощью CAS, освобождение --- с помощью атомарной записи
-\end{itemize}
+    \foreach \x in { 1, 2, 3, 4, 5, 6, 7, 8, 9} {
+        \draw (\x,-0.15) -- (\x,0.15) node (tick\x) {};
+    };
+    \node[shape=dart, draw, shape border rotate=270 ] at (2, 0.5) (currevent) {};
+    \node[draw, arrow box, arrow box arrows={north:.7cm}, text width=2.5cm, align=center, below = 0cm of currevent] (tsim) {Текущее симулируемое время};
+    \node[align=center, above=0.2cm of currevent, text width=2cm]  {Обрабатываемое событие};
 
-\begin{tikzpicture}[font=\footnotesize\ttfamily, inner sep =1pt]
-\node    (core1) {\rmfamily Процессор 1};
-\node[right = 4cm of core1]  (core2) {\rmfamily Процессор 2};
+    \node[shape=dart, draw, shape border rotate=270 ] at (5, 0.5) (futureevent) {};
+    \node[align=center, above=0.2cm of futureevent, text width=2cm] {Запланированное событие};
 
-\node[below = 0.25cm of core1.west, anchor = north west]    (unlock) {sem_unlock:};
-\node[below = 0.25cm of core2.west, anchor = north west]    (lock) {sem_lock:};
+    \node[fill=black!10, shape=dart, draw, shape border rotate=270 ] at (7, 0.5) (newbornevent) {};
+    \node[align=center, above=0.2cm of newbornevent, text width=1.5cm] {Новое событие};
 
-\node[align=left, below = 0.25cm of lock.west, anchor = north west] (try-part) {try:\\ r10 = 1};
-\node[draw=black!30, align=left, below = 0cm of try-part.south west, anchor = north west] (xchg-part) {\textbf{xchg addr, r10}};
-\node[align=left, below = 0cm of xchg-part.south west, anchor = north west] (comp-part) {if (r10 == 0 ) \\
-       \ \ goto success\\
-       fail:\\
-       pause\\
-       if (*addr != 0)\\
-       \ \ goto fail\\
-       goto try\\
-       success:
-};
+    \node[shape=dart, draw, shape border rotate=270 ] at (9, 0.5) (futureevent2) {};
+    \node[shape=dart, draw, shape border rotate=270, above=0cm of futureevent2 ] (futureevent3) {};
 
-\node[align=left, left = 1.5cm of xchg-part.west, anchor= south] (xchg-upper) {TO = r10\\ T1 = *addr};
-                   
-\node[align=left, below = 0cm of xchg-upper.south west, anchor = north west] (xchg-lower)  {*addr = T0\\r10 = T1};
-
-\node[draw, align = left, left= 1.3cm of xchg-lower.north west, anchor = east] (addr-0) {*addr = 0}; 
-
-\node[draw=black!30, fit = (lock) (try-part) (xchg-part) (comp-part)]  {};
-
-\node[draw=black!30, fit = (xchg-upper) (xchg-lower)] (frame1) {};
-
-\node[below = 4cm of core1] (unlock-end) {} ;
-\node[draw=black!30, fit = (unlock) (addr-0) (unlock-end)] {} ; 
-
-% add an ugly connector between XCHG and its internals
-\path[fill=white, draw=black!30] (frame1.north east) -- (xchg-part.north west) -- (xchg-part.south west) -- (frame1.south east) ;
-
-% finall, a race
-\draw[->] (addr-0.east) -- (xchg-lower.north) node[font=\rmfamily\tiny, pos= 0.42, below, text width=1cm] {Гонка данных};
+    \draw[dashed, ->] (currevent.south) .. controls +(1,-0.5) and +(-1,-0.5) .. (newbornevent.south); % node[below, pos=0.7, text width=3cm] {Обработка события порождает новое событие в будущем};
 
 \end{tikzpicture}
 
 \end{frame}
 
-\begin{frame}{Использование транзакций}
-    \begin{itemize}
-        \item Не предотвращать, а детектировать гонки данных
-        \item Повторять попытку атомарной операции в случае неуспеха
-        \item Используются хозяйские инструкции CAS или (лучше) LL/SC
-    \end{itemize}
-\end{frame}
-
-\section{Модели памяти}
-
-\begin{frame}{Консистентность памяти}
-\begin{itemize}
-    \item Между процессорами и ОЗУ может лежать несколько буферов (кэши, очереди)
-    \item Возможны ситуации, в которых разные процессоры «видят» разные значения для одних и тех ячеек
-    \item Правила, которые определяют допустимые порядки видимости значений для архитектуры --- модель консистентности памяти \pause
-    \item Модели консистентности различаются между собой
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Отношение строгости}
-
-Из~\cite{consistency-report}
-
+\begin{frame}{Наивный PDES}
 \centering
 
-\begin{tikzpicture}[>=latex, inner sep = 1pt]
-    \node at (0,0) (sc) {SC} ;
-    \node at (2, -1) (ibm370) {IBM-370};
-    \node at (-0.5, -1.5) (tso) {TSO};
-    \node at (1, -1.8) (pc) {PC};
-    \node at (-0.5, -2.5) (pso) {PSO} ;
-    \node at (-2.5, -3) (wo) {WO} ;
-    \node at (-.5, -3.5) (rcsc) {RCsc} ;
-    \node at (1, -4) (rcpc) {RCpc} ;
-    \node at (3, -3) (alpha) {Alpha} ;
-    \node at (1.5, -3.5) (rmo) {RMO} ;
-    \node at (5, -3.5) (powerpc) {PowerPC} ;
+\input{../../simbook/metoda/drawings/two-queues-2}
+\end{frame}
+
+\begin{frame}{Проблемы}
+\begin{itemize}
+\item Нарушение каузальности (причинно-следственной связи)
+\item Недетерминизм модели
+\item Эффект ускорения от параллелизации не гарантирован
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Как детектировать нарушения}
+
+\begin{itemize}
+\item При пересылке сообщения добавлять к нему метку локального симулируемого времени
+\item По получении проверять метку и корректировать точку создания события
+\item При отрицательном значении корректировки — бить тревогу
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Метки времени}
+\centering
+\input{../../simbook/metoda/drawings/timestamps}
+\end{frame}
+
+\begin{frame}{Консервативно или оптимистично?}
+
+Теперь мы можем обнаруживать
+нарушения, но всё ещё не можем
+избавиться от их появления/последствий.
+Необходимо:
+1. Предотвращать их возникновение
+или
+2. Подавлять их вредное проявление
+
+\end{frame}
+
+\begin{frame}{Консервативная схема 1}
+
+●
+ При посылке сообщения блокировать
+отправителя до тех пор, пока получатель не
+обработает связанного события
+●
+ Не даём «быстрым» потокам продвигаться
+через этапы коммуникации
+●
+ Фактически вводим упорядоченность ==
+последовательность при коммуникациях
+
+\end{frame}
+
+\begin{frame}{}
+\centering
+\input{../../simbook/metoda/drawings/send-and-block}    
+\end{frame}
+
+\begin{frame}{Взаимоблокировка}
+\centering
+\input{../../simbook/metoda/drawings/deadlock}
+
+\end{frame}
+
+\begin{frame}{}
+Консервативная схема 3
+●
+ Необходимо детектировать ситуацию
+дедлока и разрушать его, освобождая
+один поток
+●
+ Лучший выбор — очередь с наименьшим
+значением симулируемого времени
+●
+ Система может оказаться в ситуации,
+когда большую часть времени почти все
+потоки стоят => выигрыша в скорости нет
+
+\end{frame}
+
+\begin{frame}{}
+Пустые сообщения 1
+●
+ Можно ли избежать блокировок?
+●
+ Необходимость в них возникает из-за того,
+что отдельные потоки не знают, в какой
+стадии находятся остальные
+●
+ Как поток A может узнать локальное время
+потока B? Через временную метку,
+хранящуюся в каждом событии
+
+\end{frame}
+
+\begin{frame}{Пустые сообщения}
+Пустые сообщения 2
+●
+ Периодическая рассылка пустых (null)
+сообщений, не связанных с
+архитектурными событиями, но несущими
+метку времени
+●
+ Теперь каждый поток имеет представление
+о том, не слишком ли он далеко убежал в
+будущее, и может сам
+притормаживать/блокировать своё
+исполнение
+
+\end{frame}
+
+\begin{frame}{Slack}
+
+    \begin{tikzpicture}[>=latex, font=\scriptsize, align=left]
+    \draw[->] (0,0) -- (10,0) node[pos=0.95, below] (sim-time1) {Время} node[pos=0., below] {Поток 1};
+    \foreach \x in { 1, 2, 3, 4, 5, 6, 7, 8, 9} {
+        \draw (\x,-0.15) -- (\x,0.15) node (tick\x) {};
+    };
+    \node[draw, arrow box, arrow box arrows={north:.7cm}] at (2, -1) {$T_1$};
+    \node[shape=dart, draw, shape border rotate=270 ] at (2, 0.5)  (ev11) {};
+
+    \draw[->] (0,-2) -- (10,-2) node[pos=0.95, below] (sim-time2) {Время} node[pos=0., below] {Поток 2};
+    \foreach \x in { 1, 2, 3, 4, 5, 6, 7, 8, 9} {
+        \draw (\x,-2.15) -- (\x,-1.85) node (tick\x) {};
+    };
+    \node[draw, arrow box, arrow box arrows={north:.7cm}] at (3, -3) {$T_2$};
+    \node[shape=dart, draw, shape border rotate=270 ] at (3, -1.5)  (ev21) {};
+
+    \draw[->] (0,-4) -- (10,-4) node[pos=0.95, below] (sim-time3) {Время} node[pos=0., below] {Поток 3};
+    \foreach \x in { 1, 2, 3, 4, 5, 6, 7, 8, 9} {
+        \draw (\x,-4.15) -- (\x,-3.85) node (tick\x) {};
+    };
+    \node[draw, arrow box, arrow box arrows={north:.7cm}] at (7, -5.2) {$T_3$\\блокировано};
+    \node[shape=dart, draw, shape border rotate=270 ] at (8, -3.5)  (ev31) {};
+
+%     \node[shape=dart, draw, shape border rotate=270 ] at (9, 0.5)  (ev12) {};
+%     \node[shape=dart, draw, shape border rotate=270 ] at (6, -1.5)  (ev22) {};
+%     \node[shape=dart, draw, shape border rotate=270 ] at (7, -3.5)  (ev32) {};
+
+    \draw[->, dashed] (1,0) .. controls +(0.5, -1) and +(0.5, 1) .. (1,-4) node[yshift=-0.5cm] {null\\msg\textsubscript{1}} node[yshift=-0.5cm, xshift=1cm] {null\\msg\textsubscript{2}};
+    \draw[->, dashed] (3,-2) .. controls +(1, -0.5) and +(1, 0.5) .. (3,-3.5) node[pos=0.5, right] {null msg\textsubscript{2} (в полёте)};
+
+    \draw[<->] (1, -6) -- (7, -6) node[midway, above] {$T_3 - T_{msg1} \geqslant MaxSlack$};
     
-    \draw[->] (wo) -- (sc);
-    \draw[->] (tso) -- (sc);
-    \draw[->] (ibm370) -- (sc);
-    \draw[->] (pc) -- (tso);
-    \draw[->] (pso) -- (tso);
-    \draw[->] (pc) -- (ibm370);
-    \draw[->] (rcsc) -- (wo);
-    \draw[->] (rcpc) -- (rcsc);
-    \draw[->] (rcpc) -- (pc);
-    \draw[->] (rmo) -- (alpha);
-    \draw[->] (powerpc) -- (alpha);
-    \draw[->] (alpha) -- (ibm370);
-\end{tikzpicture}
+    \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Что же делать? Барьеры памяти}
-\begin{itemize}
-    \item Устанавливают частичный порядок для операций
-    \item Т.е. какие из доступов в каком направлении могут опережать соседние
-    \item Чтение, запись, доступ к устройствам, чтение инструкций
-    \item Примеры инструкций: \texttt{sfence}, \texttt{lfence}, \texttt{mfence}; \texttt{mf}, \texttt{ld.acq}, \texttt{ld.rel}; \texttt{eioeio}, \texttt{sync}; \texttt{cpuid}
-	\item Атомарные инструкции не обязательно являются барьерами!
-\end{itemize}
+\begin{frame}{Пустые сообщения}
+
+Как часто рассылать сообщения?
+●
+ Часто => потоки могут бежать свободнее, но
+большой трафик
+●
+ Редко => потоки не имеют актуальной информации
+о состояниях остальных и простаивают зря
+Кому рассылать?
+●
+ Всем остальным — большой трафик
+●
+ Не всем — дедлоки вероятны
+●
+ Случайным адресатам — можно балансировать
+
 \end{frame}
 
-\section{Примеры симуляторов}
-
-\begin{frame}{Практические параллельные симуляторы}
-\begin{itemize}
-    \item Simics
-    \item Graphite
-    \item SimOS
-    \item Coremu
-    \item Pqemu
-    \item BigSim
-    \item DynamoRIO
-	% \item 
-\end{itemize}
+\begin{frame}{Частный случай: домены синхронизации}
+    \centering
+\input{../../simbook/metoda/drawings/send-and-block}   
 \end{frame}
 
-\begin{frame}{Дополнительные вопросы параллельной симуляции}
-\begin{itemize}
-	\item Параллельная двоичная трансляция
-	\item Распределённая общая память \pause
-	\item Почему параллельная симуляция настолько сложна? \pause \textit{<<\dots необходимо определить, может или нет сообщение $E_1$ быть обработано одновременно с $E_2$. Но каким образом узнать, влияет или нет $E_1$ на $E_2$, без его симуляции?>>}
-\end{itemize}    
+\begin{frame}{Оптимистичные схемы}
+Даём параллельной программе работать самой по
+себе
+Периодически сохраняем (корректное) состояние
+всей системы
+При обнаружении каузальных ошибок
+откатываемся до ближайшего сохранённого
+состояния
+Проходим проблемный участок аккуратными
+методами (напр. консервативно)
+
 \end{frame}
+
+\begin{frame}{Точки сохранения}
+\centering
+\input{../../simbook/metoda/drawings/checkpoints} 
+\end{frame}
+
+\begin{frame}{Time Warp}
+
+Сообщение — набор данных, описывающих событие, которое
+должно быть добавлено в одну из очередей событий. Оно
+характеризуется, кроме своего непосредственного
+содержимого, виртуальными временами отправки tsend и
+обработки treceive.
+LVT (local virtual time) — значение симулируемого времени
+отдельного потока, участвующего в симуляции. Для
+создаваемых событий их время отправки tsend равно
+значению LVT отправителя. В отличие от консервативных
+схем, эта величина может как расти в процессе симуляции,
+так и убывать в случае отката процесса.
+\end{frame}
+
+
+\begin{frame}{GVT}
+ GVT (global virtual time) — глобальное время для всей
+симуляции, определяющее, до какой степени возможно её
+откатывать. Глобальное время всегда монотонно растёт, всегда
+оставаясь позади локального времени самого медленного
+потока, а также оно меньше времени отправки самого раннего
+ещё не доставленного события:
+$$GVT \leq \min \left( \min\limits_{i} LVT_{i}, \min\limits_{k} t^{send}_k  \right).$$
+\end{frame}
+
+
+\begin{frame}{Straggler, antimessage}
+
+Отставшее сообщение (straggler) — событие, пришедшее
+в очередь с меткой времени treceivestraggler, меньшей,
+чем LVT получателя. Его обнаружение вызывает откат
+текущего состояния, при этом LVT уменьшается, пока не
+станет меньше, чем treceivestraggler, после чего оно
+может быть обработано. После этого возобновляется
+прямая симуляция.
+Антисообщение (antimessage). Каждое антисообщение
+соответствует одному ранее созданному сообщению,
+порождённому в интервале симулируемого времени
+[tstraggler, LVTi] и вызывает эффект, обратный его
+обработке (т.е. возвращает состояние в исходное).
+
+\end{frame}
+
+
+\begin{frame}{Работа Time Warp}
+\centering
+\input{../../simbook/metoda/drawings/time-warp} 
+\end{frame}
+
+\begin{frame}{Fossil Collection}
+Освобождение места, занятого сообщениями, расположенными левее GVT
+\end{frame}
+
+\begin{frame}{}
+
+\end{frame}
+
+% \begin{frame}{}
+% 
+% \end{frame}
+
 
 \begin{frame}[allowframebreaks]{Рекомендуемая литература}
 \begin{thebibliography}{99}
-    \bibitem{consensus-number} \textit{Maurice Herlihy}. “Wait-Free Synchronization” \url{http://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf}
-    \bibitem{coremu} \textit{Zhaoguo Wang et al.} COREMU: a Scalable and Portable Parallel Full-System Emulator \url{http://ppi.fudan.edu.cn/_media/publications\%3Bcoremu-ppopp11.pdf},
-    \bibitem{consistency-report} \textit{Kourosh Gharachorloo} Memory Consistency Models for Shared-Memory Multiprocessors. \url{http://infolab.stanford.edu/pub/cstr/reports/csl/tr/95/685/CSL-TR-95-685.pdf}
-    \bibitem{whymb} \textit{Paul E. McKenney} Memory Barriers: a Hardware View for Software Hackers \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.152.5245}
-%     \bibitem{} Paul E. McKenney. Memory Ordering in Modern Microprocessors
-    \bibitem{pqemu} \textit{Jiun-Hung Ding et al.} PQEMU: A Parallel System Emulator Based on QEMU \url{http://dx.doi.org/10.1109/ICPADS.2011.102}
-    \bibitem{itanium-mem-order} \textit{Intel Corporation} A Formal Specification of {Intel}® {Itanium}® Processor Family Memory Ordering
+\bibitem{fujimoto} Fujimoto Richard M. Parallel discrete event simulation // Commun. ACM. — 1990. — Окт. — Т. 33, No 10. — С. 30– 53. \url{http://doi.acm.org/10.1145/84537.84545}
+\bibitem{liu} Liu Jason. Parallel Discrete-Event Simulation. — 2009. \url{http://www.cis.fiu.edu/~liux/research/papers/pdes-eorms09.pdf}
+\bibitem{misra}Jayadev Misrsa. Distributed discrete-event simulation //ACM Computing Surveys 18 1986 \url{www.cis.udel.edu/~cshen/861/notes/p39-misra.pdf}
+
+% \bibitem{simos} Lantz Robert E. Parallel SimOS: Performance and Scalability for Large System Simulation. — 2007 \url{http://cs.stanford.edu/~rlantz/papers/lantz-thesis.pdf}
+
 \end{thebibliography}
 \end{frame}
 
