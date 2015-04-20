@@ -374,9 +374,32 @@ $$GVT \leq \min \left( \min\limits_{i} LVT_{i}, \min\limits_{k} t^{send}_k  \rig
 Освобождение места, занятого сообщениями, расположенными левее GVT
 \end{frame}
 
-\begin{frame}{}
+\section{Примеры параллельных симуляторов}
 
+\begin{frame}{Параллельные симуляторы}
+\begin{itemize}
+    \item Simics
+    \item Graphite
+    \item SimOS
+    \item Coremu
+    \item Pqemu
+    \item BigSim
+    \item DynamoRIO
+	% \item 
+\end{itemize}
 \end{frame}
+
+\begin{frame}{Дополнительные вопросы параллельной симуляции}
+\begin{itemize}
+	\item Параллельная двоичная трансляция
+	\item Распределённая общая память \pause
+	\item Почему параллельная симуляция настолько сложна? \pause \textit{«\dots необходимо определить, может или нет сообщение $E_1$ быть обработано одновременно с $E_2$. Но каким образом узнать, влияет или нет $E_1$ на $E_2$, без его симуляции?»}
+\end{itemize}    
+\end{frame}
+
+% \begin{frame}{}
+
+% \end{frame}
 
 % \begin{frame}{}
 % 

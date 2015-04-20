@@ -78,7 +78,11 @@
 \end{frame}
 
 \begin{frame}{Вопросы}
-    
+\begin{itemize}
+\item Какие фазы существуют в работе потактовой модели с портами?\pause
+\item Сколько независимых входов может быть у функционального элемента? % \pause
+% \item Сколько 
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Общая схема моделируемой системы}
@@ -136,10 +140,10 @@
 \end{tikzpicture}
 
 \begin{itemize}
-    \item {Read--Modify--Write} для ячейки в памяти
+    \item {Read–Modify–Write} для ячейки в памяти
     \item Средства реализации семафоров
-    \item «Дорогие» для исполнения \pause
-    \item {Вопрос}: нужны ли атомарные инструкции для однопроцессорных систем?
+    \item «Дорогие» для исполнения
+    %\pause \item {Вопрос}: нужны ли атомарные инструкции для однопроцессорных систем?
 \end{itemize}
 
 \end{frame}
@@ -168,7 +172,7 @@
 
 \begin{frame}{Использование критических секций}
 \begin{itemize}
-    \item Хозяйская критическая секция для моделирования одной атомарной операции \pause \dots{} но это не работает
+    \item Хозяйская критическая секция для моделирования одной атомарной операции \pause \dots{} но это не работает\pause
     \item Пример~\cite{coremu}: взятие семафора с помощью CAS, освобождение — с помощью атомарной записи
 \end{itemize}
 
@@ -284,48 +288,21 @@
 
 \end{frame}
 
-\section{Примеры симуляторов}
-
-\begin{frame}{Практические параллельные симуляторы}
-\begin{itemize}
-    \item Simics
-    \item Graphite
-    \item SimOS
-    \item Coremu
-    \item Pqemu
-    \item BigSim
-    \item DynamoRIO
-	% \item 
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Дополнительные вопросы параллельной симуляции}
-\begin{itemize}
-	\item Параллельная двоичная трансляция
-	\item Распределённая общая память \pause
-	\item Почему параллельная симуляция настолько сложна? \pause \textit{«\dots необходимо определить, может или нет сообщение $E_1$ быть обработано одновременно с $E_2$. Но каким образом узнать, влияет или нет $E_1$ на $E_2$, без его симуляции?»}
-\end{itemize}    
-\end{frame}
-
 \begin{frame}[allowframebreaks]{Рекомендуемая литература}
 \begin{thebibliography}{99}
-    \bibitem{consensus-number} \textit{Maurice Herlihy}. Wait-Free Synchronization \url{http://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf}
-    \bibitem{coremu} \textit{Zhaoguo Wang et al.} COREMU: a Scalable and Portable Parallel Full-System Emulator \url{http://ppi.fudan.edu.cn/_media/publications\%3Bcoremu-ppopp11.pdf},
-    \bibitem{consistency-report} \textit{Kourosh Gharachorloo} Memory Consistency Models for Shared-Memory Multiprocessors. \url{http://infolab.stanford.edu/pub/cstr/reports/csl/tr/95/685/CSL-TR-95-685.pdf}
-    \bibitem{whymb} \textit{Paul E. McKenney} Memory Barriers: a Hardware View for Software Hackers \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.152.5245}
-    \bibitem{pqemu} \textit{Jiun-Hung Ding et al.} PQEMU: A Parallel System Emulator Based on QEMU \url{http://dx.doi.org/10.1109/ICPADS.2011.102}
-    \bibitem{itanium-mem-order} \textit{Intel Corporation} A Formal Specification of {Intel}® {Itanium}® Processor Family Memory Ordering
+    \bibitem{consensus-number} Maurice Herlihy. Wait-Free Synchronization — \url{http://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf}
+    \bibitem{coremu} Zhaoguo Wang et al. COREMU: a Scalable and Portable Parallel Full-System Emulator — \url{http://ppi.fudan.edu.cn/_media/publications\%3Bcoremu-ppopp11.pdf},
+    \bibitem{consistency-report} Kourosh Gharachorloo. Memory Consistency Models for Shared-Memory Multiprocessors — \url{http://infolab.stanford.edu/pub/cstr/reports/csl/tr/95/685/CSL-TR-95-685.pdf}
+    \bibitem{whymb} Paul E. McKenney. Memory Barriers: a Hardware View for Software Hackers — \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.152.5245}
+    \bibitem{pqemu} Jiun-Hung Ding et al. PQEMU: A Parallel System Emulator Based on QEMU — \url{http://dx.doi.org/10.1109/ICPADS.2011.102}
+    \bibitem{itanium-mem-order} Intel Corporation. A Formal Specification of {Intel}® {Itanium}® Processor Family Memory Ordering
 \end{thebibliography}
 \end{frame}
 
-
 \begin{frame}{На следующей лекции}
 \centering
-
 Параллельная симуляция дискретных событий (PDES)
-
 \end{frame}
-
 
 \begin{frame}
 
