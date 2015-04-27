@@ -69,8 +69,6 @@
 \tableofcontents
 \end{frame} 
 
-\section{Обзор}
-
 \begin{frame}{На прошлых лекциях}
 \begin{itemize}
 \item Моделирование многих агентов, работающих асинхронно — DES в один поток
@@ -166,6 +164,7 @@
 
 \end{frame}
 
+\section{Консерватиные схемы}
 \begin{frame}{Консервативная схема}
 \begin{itemize}
     \item При посылке сообщения блокировать отправителя до тех пор, пока получатель не обработает связанного события
@@ -268,9 +267,10 @@
 
 \begin{frame}{Частный случай: домены синхронизации}
     \centering
-\input{../../simbook/metoda/drawings/send-and-block}   
+\input{../../simbook/metoda/drawings/domains}
 \end{frame}
 
+\section{Оптимистичные схемы}
 \begin{frame}{Оптимистичные схемы}
 \begin{itemize}
 \item Параллельная программа работает без блокировок
@@ -372,7 +372,7 @@ $$GVT \leq \min \left( \min\limits_{i} LVT_{i}, \min\limits_{k} t^{send}_k  \rig
 
 \end{frame}
 
-\section{Примеры параллельных симуляторов}
+%\section{Примеры параллельных симуляторов}
 
 \begin{frame}{Параллельные симуляторы}
 \begin{itemize}
