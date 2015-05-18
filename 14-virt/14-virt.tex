@@ -101,13 +101,13 @@
 \item IBM VM — 1960 гг. \cite{goldberg}
 \item VMware Workstation — 1998 г.
 \item Intel VT-x, VT-i — 2005 г.
-\item 
+% \item 
 \end{itemize}
 
 
 \end{frame}
 
-\section{Классические условия}
+\section{Классические условия виртуализации}
 
 \begin{frame}{Необходимые свойства}
 
@@ -118,6 +118,8 @@
 \end{enumerate}
 
 \end{frame}
+
+\subsection{Определения}
 
 \begin{frame}{Модель}
 
@@ -156,7 +158,9 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[shrink=20]{Достаточное условие}
+\subsection{Достаточное условие}
+
+\begin{frame}{Достаточное условие}
 
 Множество служебных инструкций является подмножеством привилегированных инструкций
 
@@ -191,6 +195,8 @@
 \end{itemize}
 \end{frame}
 
+\subsection{Трансляция адресов}
+
 \begin{frame}[shrink=20]{Трансляция адресов}
 \centering
 \input{../../simbook/metoda/drawings/two-level-translation} 
@@ -208,6 +214,8 @@
  \end{tabular}
 \end{center}
 \end{frame}
+
+\subsection{Периферийные устройства}
 
 \begin{frame}{Периферийные устройства}
 \begin{itemize}
@@ -278,6 +286,7 @@
 
 \end{frame}
 
+\subsection{Многопроцессорность}
 
 \begin{frame}{Многопроцессорность}
 \begin{itemize}
@@ -301,7 +310,7 @@
 \bibitem{vtx} Leung, F. [et al.] Intel® Virtualization Technology // ITJ Vol 10 Issue 3 — 2006.
 \bibitem{mpr} Harlan McGhan. The gHost in the Machine: Parts 1,2,3 // Microprocessor Report. 2007. \url{http://mpronline.com}
 \bibitem{virt-locks} Jiannan Ouyang and John R. Lange. Preemptable ticket spinlocks: improving consolidated performance in the cloud — 2013 \url{https://labs.vmware.com/vee2013/docs/p191.pdf}
-
+\bibitem{my-virt} Аппаратная виртуализация. Теория, реальность и поддержка в архитектурах процессоров \url{http://habrahabr.ru/company/intel/blog/196444/}
 \end{thebibliography}
 \end{frame}
 
