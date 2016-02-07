@@ -410,7 +410,7 @@ goto start;
 \end{verbatim}
 \end{frame}
 
-\begin{frame}[fragile]{Сцепленная интерпретация (threaded interpretation)}
+\begin{frame}[fragile]{Шитая интерпретация (threaded interpretation)}
 Вместо возвращения к началу цикла «прыгаем» прямо на исполнение следующей инструкции
 \begin{verbatim}
 func0: /* simulate instr0 */; PC++;
@@ -475,6 +475,7 @@ while (!interruption) {
 
 \begin{frame}[allowframebreaks]{Литература}
 \begin{thebibliography}{99}
+    \bibitem{interpreters-comparison} Семь видов интерпретаторов виртуальной машины. В поисках самого быстрого \url{http://habrahabr.ru/company/intel/blog/261665/}
     \bibitem{bochs} D. Mihoka , S. Shwartsman. Virtualization Without Direct Execution or Jitting: Designing a Portable Virtual Machine Infrastructure \url{http://bochs.sourceforge.net/}
     \bibitem{simgen} Fredrik Larsson, Peter Magnusson, Bengt Werner. SimGen: Development of Efficient Instruction Set Simulators
 \url{ftp://ftp.sics.se/pub/SICS-reports/Reports/SICS-R--97-03--SE.ps.Z}
