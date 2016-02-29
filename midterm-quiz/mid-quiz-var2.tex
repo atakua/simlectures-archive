@@ -1,0 +1,173 @@
+% Compile with XeLaTeX only
+%
+%\documentclass[a4paper, addpoints, answers]{exam}
+\documentclass[a4paper, addpoints]{exam}
+
+\pointpoints{б.}{б.}
+\bonuspointpoints{б.}{б.}
+
+\def \variant {2} % muhaha
+
+\usepackage{fontspec}
+%\usepackage[utf8]{inputenc} % uncomment for latex2rtf 
+
+\usepackage{xunicode} % some extra unicode support
+\usepackage{xltxtra}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+\usepackage{csquotes}
+
+\usepackage{polyglossia}
+\defaultfontfeatures{Scale=MatchLowercase, Mapping=tex-text}
+
+\newfontfamily\russianfont{TextBookC} % Гарнитура "Букварная"
+\setromanfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+
+\setdefaultlanguage[spelling=modern]{russian}
+\setotherlanguage{english}
+\newcommand{\todo}{{\color{red}TODO}\ }
+\usepackage{graphicx}
+
+\tolerance=9999 % let the text underfull be ugly as hell, nobody cares.
+\emergencystretch=3cm
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=black, filecolor=black, citecolor=black, urlcolor=black , pdfauthor=Grigory Rechistov, pdftitle=Контрольная работа по курсу <<Программное моделирование вычислительных систем>>}
+
+\usepackage{footnpag}
+\usepackage{indentfirst}
+\usepackage{underscore}
+\usepackage{url}
+
+\usepackage{listings}
+\lstset{basicstyle=\footnotesize\ttfamily, breaklines=true, keepspaces=true}
+
+\usepackage{nameref}
+\usepackage{amsthm}
+\usepackage{enumitem} % continue enumeration 
+\usepackage{subfigure}
+\usepackage{mdwlist} % compact itemize lists environment
+
+\setcounter{tocdepth}{2}
+
+\renewcommand{\solutiontitle}{\noindent\textbf{Ответ:}\enspace}
+
+\title{Программное моделирование вычислительных систем. Контрольная работа. Вариант \textnumero \variant}
+\author{}
+% \newcommand{\testdate}{25 мая 2015 г.}
+% \date{\testdate}
+
+\typeout{Copyright 2015, 2016 Grigory Rechistov.}
+\begin{document}
+
+\pagestyle{headandfoot}
+\runningheadrule
+\firstpageheader{Вариант \textnumero \variant}{Кафедра <<Микропроцессорные технологии>>}{\testdate}
+\runningheader{Вариант \textnumero \variant}{Кафедра <<Микропроцессорные технологии>>}{\testdate}
+\coverfooter{}{Стр. \thepage\ из \numpages}{}
+\firstpagefooter{}{Стр. \thepage\ из \numpages}{}
+\runningfooter{}{Стр. \thepage\ из \numpages}{}
+
+\maketitle\thispagestyle{headandfoot} % a hack to have proper footers and headers on the first page as well
+
+\medskip
+\makebox[0.9\textwidth]{Ф.И.О.\enspace\hrulefill}
+\medskip
+
+\makebox[0.9\textwidth]{Группа\enspace\hrulefill}
+\medskip
+
+\makebox[0.9\textwidth]{e-mail\enspace\hrulefill}
+
+% Grade tables
+\hqword{Вопрос}
+\hpword{Баллов}
+\hsword{Результат}
+\htword{Сумма}
+\vqword{Вопрос}
+\vpword{Баллов}
+\vsword{Результат}
+\vtword{Сумма}
+\cellwidth{0.5em}
+% \gradetablestretch{1.8}
+\begin{center}
+\tiny
+\gradetable[h][questions]
+% \partialgradetable{multiplechoice}[h][questions]\\
+% \partialgradetable{fullquestions}[h][questions]\\
+% \partialgradetable{bonuswork}[h][questions]\\
+\end{center}
+
+\medskip
+
+\begin{questions}
+
+% Introduce several grading range so that grading tables are short enough to fit on the page
+
+% \begingradingrange{multiplechoice} 
+
+% lecture01-why-simulation
+% \question[2] Определите понятие <<виртуализация>>  в контексте моделирования компьютеров.
+% \begin{solution}[2cm]
+% \end{solution}
+\question[2] Определите понятие <<гостевая система>> в контексте моделирования компьютеров.
+\begin{solution}[2cm]
+\end{solution}
+
+% % lecture02-common-questions
+% \question[2] Определите понятие <<Shift left>> в применении к разработке программно-аппаратных систем (железа и ПО).
+% \begin{solution}[2cm]
+% \end{solution}
+% lecture02-common-questions
+\question[2] Перечислите способы измерения скорости работы различных типов программных моделей.
+\begin{solution}[2cm]
+\end{solution}
+
+% lecture03-cpu-interpretation
+% \question[2] Объясните принцип работы сцепленного (threaded) интерпретатора. Почему он оказывается быстрее обычного переключаемого?
+% \begin{solution}[2cm]
+% \end{solution}
+\question[2] Определите понятие <<декодирование>> в контексте создания программного симулятора ЦПУ (интерпретатора).
+\begin{solution}[2cm]
+\end{solution}
+
+\question[2] Определите понятие <<асинхронное прерывание>>. Приведите пример ситуации, когда возникает это событие.
+\begin{solution}[2cm]
+\end{solution}
+
+% 04-arch-state
+\question[2] Опишите механизм ленивого вычисления флагов при симуляции арифметических инструкций, изменяющих флаги. Почему ленивое вычисление повышает скорость симуляции?
+\begin{solution}[2cm]
+\end{solution}
+
+\question[2] Опишите, как работает архитектурный механизм Memory Mapped Input/Output (MMIO) для доступа к периферийным устройствам.
+\begin{solution}[2cm]
+\end{solution}
+
+% lecture04-bt-pt1
+% lecture04pt2-bt
+\question[2] Опишите существующие способы обеспечения симуляции с прямым исполнением гостевого кода в условиях присутствия в нём небезопасных инструкций.
+\begin{solution}[2cm]
+\end{solution}
+
+\question[2] Определите, что входит в понятие <<обнаружение кода>> при двоичной трансляции.
+\begin{solution}[2cm]
+\end{solution}
+
+
+
+% ============================================================
+\begingradingrange{bonuswork}
+\bonusquestion \textit{Баллы за работу в течение семестра}
+\endgradingrange{bonuswork}
+
+% Some extra blank pages
+\newpage
+\phantom{Blank page}
+
+\end{questions}
+\end{document}
