@@ -106,64 +106,42 @@
 
 \begin{questions}
 
-% Introduce several grading range so that grading tables are short enough to fit on the page
 
-% \begingradingrange{multiplechoice} 
-
-% lecture01-why-simulation
-% \question[2] Определите понятие <<виртуализация>>  в контексте моделирования компьютеров.
-% \begin{solution}[2cm]
-% \end{solution}
-\question[2] Определите понятие <<гостевая система>> в контексте моделирования компьютеров.
-\begin{solution}[2cm]
-\end{solution}
-
-% % lecture02-common-questions
-% \question[2] Определите понятие <<Shift left>> в применении к разработке программно-аппаратных систем (железа и ПО).
-% \begin{solution}[2cm]
-% \end{solution}
-% lecture02-common-questions
-\question[2] Перечислите способы измерения скорости работы различных типов программных моделей.
-\begin{solution}[2cm]
-\end{solution}
-
-% lecture03-cpu-interpretation
-% \question[2] Объясните принцип работы сцепленного (threaded) интерпретатора. Почему он оказывается быстрее обычного переключаемого?
-% \begin{solution}[2cm]
-% \end{solution}
-\question[2] Определите понятие <<декодирование>> в контексте создания программного симулятора ЦПУ (интерпретатора).
-\begin{solution}[2cm]
-\end{solution}
-
-\question[2] Определите понятие <<асинхронное прерывание>>. Приведите пример ситуации, когда возникает это событие.
-\begin{solution}[2cm]
-\end{solution}
-
-% 04-arch-state
-\question[2] Опишите механизм ленивого вычисления флагов при симуляции арифметических инструкций, изменяющих флаги. Почему ленивое вычисление повышает скорость симуляции?
-\begin{solution}[2cm]
-\end{solution}
-
-\question[2] Опишите, как работает архитектурный механизм Memory Mapped Input/Output (MMIO) для доступа к периферийным устройствам.
-\begin{solution}[2cm]
-\end{solution}
-
-% lecture04-bt-pt1
-% lecture04pt2-bt
-\question[2] Опишите существующие способы обеспечения симуляции с прямым исполнением гостевого кода в условиях присутствия в нём небезопасных инструкций.
-\begin{solution}[2cm]
-\end{solution}
-
-\question[2] Определите, что входит в понятие <<обнаружение кода>> при двоичной трансляции.
-\begin{solution}[2cm]
-\end{solution}
+\question[2] Какой термин наилучшим образом описывает ситуацию приостановки пользовательской программы при отсутствии страницы памяти, к которой она обратилась? Отсутствующую страницу системная программа (операционная система) может подкачать с диска и затем возобновить исполнение прерванной программы прозрачно для последней.
+\begin{choices}
+\choice Исключение (exception)
+\correctchoice Промах (fault)
+\choice Асинхронное прерывание (interrupt)
+\choice Ловушка (trap)
+\choice Программное прерывание (software interrupt)
+\end{choices}
 
 
+\question[2] Какие из перечисленных ниже приложений должен быть в состоянии исполнять симулятор \textit{уровня приложений}?
+\begin{choices}
+\correctchoice Текстовый редактор LibreOffice Writer
+\choice Операционная система Apple MacOS X El Capitan
+\correctchoice Симулятор Dosbox
+\choice Драйвер видеокарты Intel HD Graphics
+\correctchoice Компилятор GNU GCC
+\end{choices}
 
-% ============================================================
-\begingradingrange{bonuswork}
-\bonusquestion \textit{Баллы за работу в течение семестра}
-\endgradingrange{bonuswork}
+\question[2] Какие варианты прочтения (восьмибитного) байта со значением 0xAB могут быть на системах со всевозможными endianness?
+\begin{choices}
+\correctchoice 0xAB
+\choice 0xBA
+\choice 0x57
+\choice 0x00
+\choice 0xD5
+\end{choices}
+
+\question[2] Для какого типа гостевой программы двоичная трансляция может показать производительность хуже, чем интерпретация той же программы?
+\begin{choices}
+\choice Драйвер устройства
+\choice Программа решения матричных уравнений
+\correctchoice JIT-компилятор
+\choice Программа, выделяющая огромный объём памяти
+\end{choices}
 
 % Some extra blank pages
 \newpage
